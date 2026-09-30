@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telegram 下载器 · Telegram 内容归档</title>
+  <link rel="icon" type="image/svg+xml" href="static/brand/telegram-downloader-icon.svg?v=6.1">
+  <link href="static/layui/css/layui.css" rel="stylesheet">
+  <link href="static/css/index.css?v=5.0" rel="stylesheet">
+  <link href="static/css/workspace.css?v=7.0.0" rel="stylesheet">
+</head>
+
+<body>
+  {% if preview_mode %}<div class="preview-banner" role="note">界面演示 · 设置会保存在本机；未连接 Telegram，不会实际下载</div>{% endif %}
+  <a class="skip-link" href="#main-content">跳到主内容</a>
+  <div id="ui_status" class="ui-status" role="status" aria-live="polite" aria-atomic="true">
+    <span id="ui_status_icon" class="ui-status-icon" aria-hidden="true">i</span>
+    <span class="ui-status-copy"><b id="ui_status_title">提示</b><span id="ui_status_message"></span></span>
+    <button id="ui_status_close" class="ui-status-close" type="button" aria-label="关闭提示">×</button>
+  </div>
+
+<aside class="app-sidebar" aria-label="应用导航"><div class="sidebar-brand"><img class="brand-mark" src="static/brand/telegram-downloader-icon.svg?v=6.1" alt="" width="48" height="48"><div><strong>Telegram 下载器</strong><span>Telegram 内容归档</span></div></div><p class="sidebar-kicker">工作空间</p><nav class="view-tabs" role="tablist" aria-label="工作空间" aria-orientation="vertical">
+          <button class="view-tab is-active" id="tab-queue" type="button" role="tab" aria-selected="true" aria-controls="panel-queue" data-view="queue"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 5H3" />
+  <path d="M10 12H3" />
+  <path d="M10 19H3" />
+  <path d="M15 12.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997a1 1 0 0 1-1.517-.86z" />
+</svg>
+<span>频道队列</span></button>
+          <button class="view-tab" id="tab-active" type="button" role="tab" aria-selected="false" aria-controls="panel-active" data-view="active"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 15V3" />
+  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+  <path d="m7 10 5 5 5-5" />
+</svg>
+<span>正在下载</span></button>
+          <button class="view-tab" id="tab-history" type="button" role="tab" aria-selected="false" aria-controls="panel-history" data-view="history"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+</svg>
+<span>下载记录</span></button>
+          <button class="view-tab" id="tab-failed" type="button" role="tab" aria-selected="false" aria-controls="panel-failed" data-view="failed"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+  <path d="M12 9v4" />
+  <path d="M12 17h.01" />
+</svg>
+<span>异常任务</span></button>
+          <button class="view-tab" id="tab-imports" type="button" role="tab" aria-selected="false" aria-controls="panel-imports" data-view="imports"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 3v12" />
+  <path d="m8 11 4 4 4-4" />
+  <path d="M8 5H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-4" />
+</svg>
+<span>导入中心</span></button>
+          <button class="view-tab" id="tab-config" type="button" role="tab" aria-selected="false" aria-controls="panel-config" data-view="config"><svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M14 17H5" />
+  <path d="M19 7h-9" />
+  <circle cx="17" cy="17" r="3" />
+  <circle cx="7" cy="7" r="3" />
+</svg>
+<span>设置</span></button>
+        </nav><div class="sidebar-note"><strong>好内容，留在自己手里。</strong><p>保存在你的设备<br>按你的方式整理</p></div></aside>
+  <header class="command-bar">
+    <div class="brand-block">
+      <div class="brand-copy">
+        <span class="workspace-breadcrumb">工作空间</span><h1 id="page_title">频道队列</h1>
+        <p><span id="header_state_text">读取状态中…</span><span class="separator">·</span><span id="last_updated_text">等待同步</span></p>
+      </div>
+    </div>
+    <button class="proxy-node-pill" id="proxy_node_button" type="button" title="打开网络设置">
+      <i aria-hidden="true"></i><span id="proxy_node_label">网络设置</span>
+    </button>
+    <button class="state-button" id="download_state" data-value="{{ download_state }}" onclick="download_state_change(this)" type="button">
+      <span class="state-symbol" aria-hidden="true">Ⅱ</span>
+      <span>{{ download_state }}</span>
+    </button>
+  </header>
+
+
+  <main class="app-shell" id="main-content" tabindex="-1">
+    <section id="setup_callout" class="setup-callout" aria-label="首次下载引导">
+<div class="onboarding-content"><strong>五步，开始第一次下载</strong><p id="setup_progress" role="status">正在检查设置…</p>
+<ol class="onboarding-list"><li><button type="button" data-setup-target="setup-telegram"><b>1 · API 凭证</b><span id="step_api">填写 API ID 和 API Hash</span></button></li><li><button type="button" data-setup-target="setup-network"><b>2 · 网络连接</b><span id="step_network">选择网络并测试连接</span></button></li><li><button type="button" data-setup-target="setup-login"><b>3 · 登录账号</b><span id="step_login">登录 Telegram</span></button></li><li><button type="button" data-setup-target="setup-channels"><b>4 · 添加频道</b><span id="step_channel">粘贴频道 ID 或 @用户名</span></button></li><li><button type="button" data-setup-target="setup-storage"><b>5 · 保存位置与开始</b><span id="step_start">确认保存位置，再开始</span></button></li></ol></div><button id="open_setup" class="secondary-button" type="button">开始设置</button></section>
+    <section class="metric-grid" aria-label="频道概览">
+      <button class="metric-tile" type="button" data-view="queue" data-filter-status="">
+        <span class="metric-label">频道总数</span>
+        <strong id="total_channel_count">0</strong>
+        <small>已纳入下载管理</small>
+      </button>
+      <button class="metric-tile" type="button" data-view="active">
+        <span class="metric-label" id="download_channel_label">下载频道</span>
+        <strong id="downloading_channel_count">0</strong>
+        <small id="download_speed_title">0 B/s</small>
+      </button>
+      <button class="metric-tile" type="button" data-view="queue" data-filter-status="queued">
+        <span class="metric-label">等待下载</span>
+        <strong id="waiting_channel_count">0</strong>
+        <small>等待开始下载</small>
+      </button>
+      <button class="metric-tile" type="button" data-view="queue" data-filter-status="blocked">
+        <span class="metric-label">异常频道</span>
+        <strong id="failed_channel_count">0</strong>
+        <small>存在失败文件</small>
+      </button>
+    </section>
+
+    <section class="health-strip" aria-label="系统状态">
+      <div class="health-primary">
+        <span><i id="service_health_dot"></i><b id="service_health_text">系统检查中…</b></span>
+        <span class="health-detail" id="nas_health_text">存储检查中…</span>
+        <span class="health-detail" id="nas_capacity_text">容量读取中…</span>
+        <span class="health-detail health-normal-detail" id="scheduler_health_text">调度器检查中…</span>
+        <button id="mount_storage_button" class="mount-storage-button" type="button" hidden>挂载共享目录</button>
+      </div>
+
+    </section>
+
+    <section id="transfer_notice" class="transfer-notice" aria-live="polite" hidden>
+      <div><b id="transfer_notice_title">下载已暂停</b><span id="transfer_notice_detail">当前文件进度已保留</span></div>
+      <button id="transfer_notice_action" type="button">继续下载</button>
+    </section>
+
+    <section class="workspace-panel">
+
+
+      <div class="workspace-content">
+        <section class="view-panel is-active" id="panel-queue" role="tabpanel" aria-labelledby="tab-queue" data-panel="queue">
+<div id="empty_queue" class="workspace-empty" hidden><img src="static/brand/telegram-downloader-icon.svg?v=6.1" width="72" height="72" alt=""><h2>第一份归档，从一个频道开始。</h2><p>添加你已加入的频道，把图片、视频和文件保存到自己的设备。</p><div class="empty-actions"><button id="empty_add_channel" type="button" class="save-config-button">添加第一个频道</button><button type="button" class="secondary-button" data-empty-view="imports">批量导入频道</button></div></div>
+          <div class="task-toolbar">
+            <label class="search-control">
+              <span class="visually-hidden">搜索频道</span>
+              <i class="layui-icon layui-icon-search" aria-hidden="true"></i>
+              <input id="queue_search" name="queue_search" type="search" autocomplete="off" placeholder="搜索频道名称或 Chat ID…">
+            </label>
+            <label class="compact-select">
+              <span class="visually-hidden">筛选频道状态</span>
+              <select id="queue_status" name="queue_status">
+                <option value="">全部状态</option>
+                <option value="downloading">正在下载</option>
+                <option value="queued">等待下载</option>
+                <option value="scanning">扫描中</option>
+                <option value="backoff">稍后重试</option>
+                <option value="paused">已暂停</option>
+                <option value="blocked">需处理</option>
+                <option value="completed">已完成</option>
+                <option value="ready">就绪</option>
+                <option value="validating">待校验</option>
+                <option value="disabled">已停用</option>
+              </select>
+            </label>
+            <button id="clear_queue_filters" class="icon-button" type="button" title="清除筛选" aria-label="清除筛选">×</button>
+            <div class="bulk-channel-actions" id="bulk_channel_actions" hidden>
+              <span id="selected_channel_count">已选 0 个</span>
+              <button class="secondary-button bulk-channel-state" data-action="pause" type="button">暂停</button>
+              <button class="secondary-button bulk-channel-state" data-action="start" type="button">开始</button>
+              <button class="secondary-button" id="bulk_channel_refresh" type="button" title="让已下载完的频道去查有没有新内容">检查更新</button>
+            </div>
+            <div class="queue-intake-actions"><button id="queue_import_channels" type="button" class="secondary-button">导入频道</button><button id="queue_add_channel" type="button" class="save-config-button">添加频道</button></div><span class="result-count" id="queue_result_count">读取频道中…</span>
+          </div>
+          <div class="desktop-download-table">
+            <table class="layui-hide" id="channel_list" lay-filter="channel_list"></table>
+          </div>
+          <div class="mobile-download-feed" id="mobile_channel_list"></div>
+        </section>
+
+        <section class="view-panel" id="panel-active" role="tabpanel" aria-labelledby="tab-active" data-panel="active" hidden>
+<div id="empty_active" class="workspace-empty" hidden><img src="static/brand/telegram-downloader-icon.svg?v=6.1" width="72" height="72" alt=""><h2>现在没有文件在下载</h2><p>添加频道后，回到频道队列开始下载。传输速度和进度会显示在这里。</p><div class="empty-actions"><button type="button" class="secondary-button" data-empty-view="queue">查看频道队列</button></div></div>
+          <div class="panel-heading">
+            <div><strong>正在下载的文件</strong><span>这里只显示当前实际传输中的文件</span></div>
+            <span class="result-count" id="active_result_count">读取中…</span>
+          </div>
+          <div class="desktop-download-table">
+            <table class="layui-hide" id="download_list" lay-filter="download_list"></table>
+          </div>
+          <div class="mobile-download-feed" id="mobile_active_list"></div>
+        </section>
+
+        <section class="view-panel" id="panel-history" role="tabpanel" aria-labelledby="tab-history" data-panel="history" hidden>
+<div id="empty_history" class="workspace-empty" hidden><img src="static/brand/telegram-downloader-icon.svg?v=6.1" width="72" height="72" alt=""><h2>你的归档记录，会出现在这里。</h2><p>完成下载后，可以查看文件大小、保存位置和原消息。</p><div class="empty-actions"><button type="button" class="secondary-button" data-empty-view="queue">去下载第一个频道</button></div></div>
+          <div class="panel-heading">
+            <div><strong>下载记录</strong><span>文件已保存到所选目录</span></div>
+            <span class="result-count" id="history_result_count">读取中…</span>
+          </div>
+          <div class="desktop-download-table">
+            <table class="layui-hide" id="already_download_list" lay-filter="already_download_list"></table>
+          </div>
+          <div class="mobile-download-feed" id="mobile_history_list"></div>
+        </section>
+
+        <section class="view-panel" id="panel-failed" role="tabpanel" aria-labelledby="tab-failed" data-panel="failed" hidden>
+<div id="empty_failed" class="workspace-empty" hidden><img src="static/brand/telegram-downloader-icon.svg?v=6.1" width="72" height="72" alt=""><h2>目前没有需要处理的下载</h2><p>重试后仍未完成的文件会保留在这里，方便你查看原因并重新下载。</p><div class="empty-actions"><button type="button" class="secondary-button" data-empty-view="queue">返回频道队列</button></div></div>
+          <div class="panel-heading failed-task-toolbar">
+            <div><strong>失败任务</strong><span>自动重试达到上限后会保留在这里</span></div>
+            <button id="retry_all_tasks" class="secondary-button" type="button"><span aria-hidden="true">↻</span><span>重试全部</span></button>
+          </div>
+          <div class="desktop-download-table">
+            <table class="layui-hide" id="failed_download_list" lay-filter="failed_download_list"></table>
+          </div>
+          <div class="mobile-download-feed" id="mobile_failed_list"></div>
+        </section>
+
+        <section class="view-panel" id="panel-imports" role="tabpanel" aria-labelledby="tab-imports" data-panel="imports" hidden>
+          {% include "batch_panel.html" %}
+        </section>
+
+        <section class="view-panel config-panel" id="panel-config" role="tabpanel" aria-labelledby="tab-config" data-panel="config" hidden>
+          <form id="config_form" class="config-form" autocomplete="off">
+<div class="wizard-toolbar" hidden><div><small id="wizard_progress">第 1 步 / 共 5 步</small><h2 id="wizard_title">连接你的 Telegram</h2></div><button id="wizard_exit" type="button" class="secondary-button">查看全部设置</button></div>
+            <section class="config-section config-intro"><div><p class="config-kicker">Telegram 下载器 · 从这里开始</p><h2>把 Telegram 内容，收进自己的空间。</h2><p>连接账号，选择保存位置，添加你关心的频道。图片、视频和文件，按你的规则归档。</p></div></section>
+<nav class="setup-steps" aria-label="配置步骤"><a href="#setup-telegram">1 · API 凭证</a><a href="#setup-network">2 · 网络连接</a><a href="#setup-login">3 · 登录账号</a><a href="#setup-channels">4 · 添加频道</a><a href="#setup-storage">5 · 保存位置与开始</a></nav>
+<section class="config-section" id="setup-telegram">
+                <div class="section-heading"><span>01</span><div><h3>API 凭证</h3><p>在 <a href="https://my.telegram.org/apps" target="_blank" rel="noopener noreferrer">Telegram 官方页面</a> 创建应用，复制 API ID 和 API Hash。只需设置一次。</p></div></div>
+                <div class="field-grid field-grid-2">
+                  <label class="field-control"><span>Telegram API ID</span><input id="api_id" name="api_id" inputmode="numeric" autocomplete="off" placeholder="粘贴数字 API ID" aria-describedby="api_id_help"><small id="api_id_help">应用编号，只有数字。不是你的账号用户 ID。</small></label>
+                  <label class="field-control"><span>Telegram API Hash</span><span class="secret-input-wrap"><input id="api_hash" aria-label="Telegram API Hash" name="api_hash" type="password" aria-describedby="api_hash_help" autocomplete="off" placeholder="粘贴 32 位 API Hash"><button class="secret-toggle" type="button" data-secret-target="api_hash" aria-label="显示 API Hash" aria-pressed="false">显示</button></span><small id="api_hash_help">应用密钥，共 32 位。保存后不会再次显示原值。</small></label>
+
+                </div>
+              <div class="api-help-card"><strong>没有这两项信息？照着下面做，只需要申请一次。</strong><ol><li><a href="https://my.telegram.org/apps" target="_blank" rel="noopener noreferrer">打开 Telegram 官方申请页 ↗</a>，填写你的 Telegram 手机号。登录码通常发到 Telegram 应用内，请查看官方消息。</li><li>进入 <b>API development tools</b>。若已有应用，直接复制信息；没有则创建一个。</li><li><b>App title</b> 填自选名称，如 My Downloader；<b>Short name</b> 填字母和数字，如 mydownloader2026；<b>Platform</b> 选 Desktop。按页面要求填写其余项目后，点击 Create application。</li><li>把 <b>App api_id</b> 复制到上面的第一格，把 <b>App api_hash</b> 复制到第二格，再点下一步。</li></ol><p>申请失败时，先确认是已注册的 Telegram 账号，并按官网错误提示处理。下载器不能替你绕过 Telegram 的申请限制。</p></div></section>
+<section class="config-section" id="setup-network">
+<div class="section-heading"><span>02</span><div><h3>网络连接</h3><p>选一种能访问 Telegram 的方式。不确定时，先测试直接连接。</p></div></div>
+<fieldset class="network-mode-picker"><legend class="visually-hidden">网络连接</legend><label><input type="radio" name="network_choice" value="direct" checked><span>直接连接</span></label><label><input type="radio" name="network_choice" value="ss"><span>导入节点</span></label><label><input type="radio" name="network_choice" value="proxy"><span>其他代理</span></label></fieldset><label hidden><select id="network_mode" aria-hidden="true" tabindex="-1"><option value="direct">直接连接 · 当前网络可以访问 Telegram</option><option value="ss">导入节点 · 链接 / YAML / JSON</option><option value="proxy">SOCKS5 / HTTP · 已有代理软件或服务</option></select></label>
+<input id="proxy_enabled" type="checkbox" hidden aria-hidden="true" tabindex="-1">
+<div id="ss_fields" class="field-grid node-import" hidden>
+<div class="node-import-intro"><strong>带上你的节点，就能开始</strong><p>粘贴分享链接，或上传配置文件。我们会自动识别格式，你只需选一个节点。</p></div>
+<div class="node-protocols" aria-label="支持的协议"><span>SS</span><span>VLESS</span><span>VMess</span><span>Trojan</span><span>Hysteria2</span><span>TUIC</span><span>SOCKS5</span><span>HTTP</span></div>
+<div id="node_editor"><label class="field-control" for="node_content"><span>节点链接或配置内容</span><textarea id="node_content" class="node-content-private" rows="5" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="node_import_help" placeholder="粘贴节点链接、YAML 或 JSON…
+多个链接可每行放一个，也支持 Base64 链接列表。"></textarea></label><button id="node_reveal" class="node-text-toggle" type="button" aria-pressed="false">显示内容</button></div>
+<div class="node-import-actions"><input id="node_file" type="file" accept=".yaml,.yml,.json,.txt,text/plain,application/json" hidden><button id="upload_node_file" class="secondary-button" type="button">上传配置文件</button><button id="read_nodes" class="primary-button" type="button">读取并识别</button><button id="edit_node_content" class="text-button" type="button" hidden>编辑内容</button></div>
+<small id="node_import_help" class="setup-help">一个入口，自动识别多种格式。粘贴或上传 → 选择节点 → 测试并保存。</small>
+<details class="node-link-guide"><summary>这个统一入口支持哪些格式？</summary><p><strong>导入格式：</strong>单个分享链接、每行一个的多节点链接列表、Base64 链接列表，以及 Clash / Mihomo 格式的 YAML（.yaml / .yml）或 JSON 配置。最多 256 KB、500 个节点。</p><p><strong>节点协议：</strong>SS、VLESS、VMess、Trojan、Hysteria2（hy2）、TUIC、SOCKS5 和 HTTP / HTTPS 代理。VLESS、VMess、Trojan 支持 TCP、WebSocket 和 gRPC；VLESS REALITY 支持 TCP / Vision。</p><p><strong>读取范围：</strong>只读取节点，不导入分流规则、DNS 或远程订阅。原始内容只提交到你自己的下载器服务，保存时只保留选中的节点。不兼容的协议、插件或附加设置会逐项提示。</p></details>
+<p id="node_import_status" class="setup-help" role="status" aria-live="polite">读取不会保存设置，也不会连接任何节点。</p>
+<label id="node_selection_field" class="field-control" hidden><span>用于下载的节点</span><select id="node_selection" aria-describedby="node_import_status"><option value="-1">请选择一个节点</option></select><small>一次使用一个节点。测试连接通过后，再保存设置。</small></label>
+<details id="node_unsupported" class="node-link-guide" hidden><summary id="node_unsupported_summary">部分节点暂不兼容</summary><ul id="node_unsupported_list"></ul></details>
+<details class="node-link-guide"><summary>找不到分享链接或配置文件？</summary><p>在小火箭等代理客户端中，打开节点的分享菜单，选择「复制链接」。节点类型是 VLESS，就复制 vless:// 链接，不必寻找 SS。</p><p>使用 Clash / Mihomo 时，可以导出包含 proxies 的 YAML 配置。截图、IP 或 UUID 单独无法还原完整连接。</p><p>特殊插件、XHTTP 等暂不兼容的设置，可在已有代理软件中连接，然后选择「其他代理」填写它的 SOCKS5 地址。</p></details>
+<p id="ss_current_node" class="setup-help"></p><p id="ss_component_note" class="setup-help" role="status"></p></div>
+<div id="proxy_fields" class="field-grid field-grid-4 proxy-fields" hidden>
+                  <label class="field-control"><span>类型</span><select id="proxy_scheme" name="proxy_scheme"><option value="socks5">SOCKS5</option><option value="socks4">SOCKS4</option><option value="http">HTTP</option></select></label>
+                  <label class="field-control"><span>地址</span><input id="proxy_hostname" name="proxy_hostname" autocomplete="off" placeholder="127.0.0.1…"></label>
+                  <label class="field-control"><span>端口</span><input id="proxy_port" name="proxy_port" type="number" min="1" max="65535" placeholder="7890…"></label>
+                  <label class="field-control"><span>用户名 <small>可选</small></span><input id="proxy_username" name="proxy_username" autocomplete="off"></label>
+                  <label class="field-control"><span>密码 <small>可选</small></span><input id="proxy_password" name="proxy_password" type="password" autocomplete="off" placeholder="输入新值或保留原值…"></label>
+                </div>
+
+<details class="network-address-help" id="proxy_network_help" hidden><summary>代理和下载器在不同设备上？</summary><p class="setup-help">填写代理所在电脑的局域网 IP，并在代理软件中允许局域网连接。127.0.0.1 只适用于代理与下载器在同一台设备。</p></details>
+<div class="setup-test-row"><button id="test_network" class="secondary-button" type="button">测试当前填写的网络</button><span id="network_test_result" role="status" aria-live="polite">测试不会保存设置，也不会中断已有下载。</span></div>
+</section>
+
+            <section class="config-section" id="setup-login">
+<div class="section-heading"><span>03</span><div><h3>登录账号</h3><p>直接在这里完成验证，不用切换到终端。验证码和两步验证密码只用于本次登录，不写入配置文件。</p></div></div>
+<button id="restart_desktop" class="secondary-button" type="button" hidden>应用设置并重新连接</button><p id="telegram_login_message" role="status">保存账号和网络信息后，即可登录。</p>
+<label id="telegram_login_field" class="field-control" hidden><span id="telegram_login_label">手机号</span><input id="telegram_login_value" type="tel" autocomplete="off" placeholder="+86 手机号" maxlength="256"></label>
+<button id="telegram_login_submit" class="save-config-button" type="button" hidden>发送验证码</button>
+<button id="telegram_login_change" class="text-button" type="button" hidden>换一个手机号</button>
+</section>
+<section class="config-section" id="setup-channels">
+              <div class="section-heading section-heading-row">
+                <div class="section-heading-copy"><span>04</span><div><h3>添加频道</h3><p>可以粘贴频道 @用户名 或链接，无需先查 ID。私有频道请先在 Telegram 手动加入。</p></div></div>
+                <div class="section-actions"><button id="batch_add_chat" class="secondary-button" type="button">导入 CSV</button><button id="add_chat" class="secondary-button" type="button">添加频道</button></div>
+              </div>
+              <details class="channel-library-details"><summary>管理已添加的频道</summary>
+              <div class="channel-library-toolbar">
+                <label class="library-search"><span class="sr-only">搜索频道库</span><input id="channel_library_search" type="search" placeholder="搜索频道名或 Chat ID"></label>
+                <span id="config_channel_count">读取中…</span>
+              </div>
+              <div class="channel-library-table" role="region" aria-label="频道库列表">
+                <div class="channel-library-head"><span>频道</span><span>分组</span><span>优先级</span><span>下载位置</span><span>状态</span><span>操作</span></div>
+                <div id="channel_library_rows" class="channel-library-rows"><p class="library-empty">正在读取频道库…</p></div>
+              </div>
+              <div class="library-pagination"><button id="library_previous" class="secondary-button" type="button">上一页</button><span id="library_page_status">第 1 页</span><button id="library_next" class="secondary-button" type="button">下一页</button></div>
+              </details>
+            </section>
+<section class="config-section" id="setup-storage">
+              <div class="section-heading"><span>05</span><div><h3>保存位置与开始</h3><p>你的文件，由你保管。本机、外置硬盘或共享目录都可以。</p></div></div>
+              <div class="field-grid field-grid-2">
+                <label class="field-control field-span-2"><span>保存位置</span><span class="path-input-row"><input id="save_path" name="save_path" placeholder="选择文件夹，或填写保存路径" aria-describedby="storage_help"></span><small id="storage_help">本机运行可以直接选文件夹；远程运行请填写下载器所在设备的目录。</small></label><div class="storage-actions field-span-2"><button id="choose_storage" class="secondary-button" type="button" hidden>选择 Mac 文件夹</button><button id="test_storage" class="secondary-button" type="button">检查文件夹</button><span id="storage_test_result" role="status" aria-live="polite"></span></div>
+              </div>
+              <details class="naming-details"><summary>调整目录层级与文件名 <small>可选</small></summary><div class="field-grid field-grid-2">
+                <fieldset class="fieldset-control"><legend>目录层级</legend><div class="inline-choices" id="file_path_prefix"><label><input type="checkbox" value="chat_title">频道名</label><label><input type="checkbox" value="media_datetime">发布日期</label><label><input type="checkbox" value="media_type">媒体类型</label></div></fieldset>
+                <fieldset class="fieldset-control"><legend>文件名组成</legend><div class="inline-choices" id="file_name_prefix"><label><input type="checkbox" value="message_id">消息 ID</label><label><input type="checkbox" value="file_name">原文件名</label><label><input type="checkbox" value="caption">消息标题</label></div></fieldset>
+                <label class="field-control"><span>文件名分隔符</span><input id="file_name_prefix_split" name="file_name_prefix_split" placeholder="例如： - …"></label>
+                <label class="field-control"><span>日期格式</span><input id="date_format" name="date_format" placeholder="例如：%Y_%m…"></label>
+              </div></details>
+            </section>
+
+            <section class="config-section">
+              <div class="section-heading"><span>可选</span><div><h3>下载内容</h3><p>选择需要归档的媒体类型。</p></div></div>
+              <div class="choice-group" id="media_types">
+                <label><input type="checkbox" value="audio"><span>音频</span></label>
+                <label><input type="checkbox" value="photo"><span>图片</span></label>
+                <label><input type="checkbox" value="video"><span>视频</span></label>
+                <label><input type="checkbox" value="document"><span>文件</span></label>
+                <label><input type="checkbox" value="voice"><span>语音</span></label>
+                <label><input type="checkbox" value="video_note"><span>视频消息</span></label>
+                <label><input type="checkbox" value="animation"><span>GIF 动图</span></label>
+              </div>
+<details class="format-details"><summary>限定文件格式 <small>默认接收全部格式</small></summary>              <div class="field-grid field-grid-3 compact-grid">
+                <label class="field-control"><span>音频格式</span><input id="format_audio" name="format_audio" placeholder="all 或 mp3,flac…"></label>
+                <label class="field-control"><span>文件格式</span><input id="format_document" name="format_document" placeholder="all 或 pdf,epub…"></label>
+                <label class="field-control"><span>视频格式</span><input id="format_video" name="format_video" placeholder="all 或 mp4,mov…"></label>
+              </div></details>
+            </section>
+
+
+
+            <details class="advanced-settings">
+              <summary><span><b>高级设置</b><small>并发、机器人和 Web 服务</small></span><i aria-hidden="true">⌄</i></summary>
+
+              <section class="config-section"><div class="section-heading"><span>A1</span><div><h3>机器人 <small>可选</small></h3><p>普通频道归档不需要 Bot Token。</p></div></div><label class="field-control"><span>Bot Token <small>可选</small></span><input id="bot_token" name="bot_token" type="password" autocomplete="off" placeholder="输入新值或保留原值…"></label></section>
+              <section class="config-section">
+                <div class="section-heading"><span>A2</span><div><h3>运行与 Web</h3><p>修改端口或地址后需要重启服务。</p></div></div>
+                <div class="field-grid field-grid-4">
+                  <label class="field-control"><span>下载任务数</span><input id="max_download_task" name="max_download_task" type="number" min="1" max="64"></label>
+                  <label class="field-control"><span>传输并发数</span><input id="max_concurrent_transmissions" name="max_concurrent_transmissions" type="number" min="1" max="320"></label>
+                  <label class="field-control"><span>界面语言</span><select id="language" name="language"><option value="ZH">中文</option><option value="EN">English</option><option value="RU">Русский</option><option value="UA">Українська</option></select></label>
+                  <label class="field-control"><span>Web 端口</span><input id="web_port" name="web_port" type="number" min="1" max="65535"></label>
+                  <label class="field-control"><span>Web 地址</span><input id="web_host" name="web_host" autocomplete="off" placeholder="127.0.0.1…"></label>
+                  <label class="field-control"><span>网页登录密码</span><input id="web_login_secret" name="web_login_secret" type="password" autocomplete="new-password" placeholder="输入新值或保留原值…"></label>
+                  <label class="toggle-control"><input id="hide_file_name" type="checkbox"><span class="toggle-track"></span><span>隐藏文件名</span></label>
+                  <label class="toggle-control"><input id="enable_download_txt" type="checkbox"><span class="toggle-track"></span><span>下载文本消息</span></label>
+                  <label class="toggle-control"><input id="keep_service_alive" type="checkbox"><span class="toggle-track"></span><span>后台常驻服务</span></label>
+                </div>
+              </section>
+
+            </details>
+
+            <div class="wizard-actions" hidden><button id="wizard_back" class="secondary-button" type="button">上一步</button><span id="wizard_hint" role="status"></span><button id="wizard_restart" class="secondary-button" type="button" hidden>应用设置并重新连接</button><button id="wizard_next" class="save-config-button" type="button">下一步</button></div><div class="config-save-bar">
+              <span id="config_status" class="config-status" role="status">尚未加载</span>
+              <button id="save_config" class="save-config-button" type="submit">保存设置</button>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+
+    <footer class="app-footer"><span>Telegram 下载器</span><span class="footer-actions"><span>好内容，留在自己手里。</span><button id="quit_desktop" class="logout-button" type="button" hidden>退出下载器</button><button id="logout_button" class="logout-button" type="button">退出登录</button></span></footer>
+  </main>
+
+
+  <dialog id="channel_detail_dialog" class="channel-detail-dialog" aria-labelledby="channel_detail_title">
+    <header class="channel-detail-header">
+      <div><p>频道详情</p><h2 id="channel_detail_title">读取中…</h2><span id="channel_detail_id"></span></div>
+      <div class="channel-detail-actions"><button id="channel_detail_state" class="secondary-button" type="button">暂停频道</button><button id="close_channel_detail" class="icon-button" type="button" aria-label="关闭频道详情">×</button></div>
+    </header>
+    <div class="channel-detail-summary" id="channel_detail_summary"></div>
+    <section class="channel-state-panel" aria-label="频道生命周期">
+      <div id="channel_state_current" class="channel-state-current">读取频道状态…</div>
+      <div id="channel_state_timeline" class="channel-state-timeline"></div>
+    </section>
+    <div class="channel-detail-table desktop-download-table"><table class="layui-hide" id="channel_file_list" lay-filter="channel_file_list"></table></div>
+    <div class="mobile-download-feed channel-detail-mobile" id="mobile_channel_file_list"></div>
+    <div class="mobile-detail-pagination" id="mobile_detail_pagination"><button id="mobile_detail_previous" type="button">上一页</button><span id="mobile_detail_page">第 1 页</span><button id="mobile_detail_next" type="button">下一页</button></div>
+  </dialog>
+
+  <dialog id="batch_chat_dialog" class="batch-chat-dialog" aria-labelledby="batch_chat_title">
+    <header class="channel-detail-header"><div><p>频道导入</p><h2 id="batch_chat_title">批量添加频道</h2><span>先预览，后添加。系统会检查重复项和频道访问权限。</span></div><button id="close_batch_chat" class="icon-button" type="button" aria-label="关闭批量导入">×</button></header>
+    <div class="batch-chat-body import-center-body">
+      <form id="import_compose" class="import-compose">
+        <div class="import-template-note"><strong>先下载模板，再填自己的频道</strong><p>保留第一行字段名，每行一个频道；示例行请替换。公开频道可用 @用户名，私有频道先手动加入。</p></div>
+<label class="field-control"><span>这次导入什么</span><select id="import_kind"><option value="channels">已加入的频道 · 入库后可下载</option><option value="invites">待手动加入的邀请链接 · 分批处理</option></select></label>
+<div class="import-source-bar"><a id="download_csv_template" class="secondary-button" href="api/import/template.csv?kind=channels" download>下载 CSV 模板</a><label class="secondary-button file-picker">选择 CSV<input id="batch_chat_file" type="file" accept=".csv,text/csv,text/plain"></label><span id="batch_file_name">也可以直接粘贴文本</span></div>
+        <label class="field-control"><span>频道列表</span><textarea id="batch_chat_input" rows="10" placeholder="-1001234567890,0&#10;@public_channel,120&#10;https://t.me/c/1234567890/1"></textarea><small id="import_format_help">普通文本：每行“频道,起始消息 ID,分组,优先级”；CSV 支持 chat_id、start_message_id、group_name、priority、download_filter。</small></label>
+        <div class="import-defaults">
+          <label class="field-control"><span>默认分组</span><input id="batch_default_group" placeholder="例如：AI 资讯"></label>
+          <label class="field-control"><span>默认优先级</span><select id="batch_default_priority"><option value="normal">普通</option><option value="high">高</option><option value="low">低</option></select></label>
+          <label class="field-control"><span>从哪条消息开始</span><input id="batch_default_start" type="number" min="0" value="0"></label>
+        </div>
+        <div class="import-create-row"><p id="batch_chat_preview">尚未创建导入批次</p><button id="create_import_batch" class="save-config-button" type="button">预览并检查</button></div>
+      </form>
+      <section id="import_review" class="import-review" hidden>
+        <div class="import-batch-heading"><div><span id="import_batch_label">批次 #—</span><strong id="import_batch_state">准备中</strong></div><button id="new_import_batch" class="secondary-button" type="button">新建批次</button></div>
+        <div class="import-metrics"><span><b id="import_total">0</b>总计</span><span><b id="import_pending">0</b>校验中</span><span><b id="import_valid">0</b>可导入</span><span><b id="import_duplicate">0</b>重复</span><span><b id="import_invalid">0</b>无效</span></div>
+        <div class="import-review-table"><div class="import-review-head"><span>行</span><span>频道</span><span>识别名称</span><span>结果</span></div><div id="import_review_rows"></div></div>
+      </section>
+    </div>
+    <footer class="dialog-footer"><button id="undo_import_batch" class="secondary-button" type="button" hidden>撤销本批次</button><span class="dialog-spacer"></span><button id="cancel_batch_chat" class="secondary-button" type="button">关闭</button><button id="confirm_batch_chat" class="save-config-button" type="button" disabled>确认添加</button></footer>
+  </dialog>
+
+  <dialog id="channel_editor_dialog" class="channel-editor-dialog" aria-labelledby="channel_editor_title">
+    <header class="channel-detail-header"><div><p>CHANNEL LIBRARY</p><h2 id="channel_editor_title">添加频道</h2><span>保存后自动生效，无需重启下载服务。</span></div><button id="close_channel_editor" class="icon-button" type="button" aria-label="关闭频道编辑器">×</button></header>
+    <form id="channel_editor_form" class="channel-editor-form">
+      <label class="field-control field-span-2"><span>Chat ID、用户名或 Telegram 链接</span><input id="channel_editor_id" required placeholder="粘贴 @频道用户名 或 Telegram 链接" aria-describedby="channel_id_help"><small id="channel_id_help">也可以填 -100 开头的频道 Chat ID。这是下载来源，与配置页的 API ID 不同。</small></label>
+      <label class="field-control"><span>起始消息 ID</span><input id="channel_editor_start" type="number" min="0" value="0"></label>
+      <label class="field-control"><span>分组</span><input id="channel_editor_group" placeholder="例如：AI 资讯"></label>
+      <label class="field-control"><span>优先级</span><select id="channel_editor_priority"><option value="normal">普通</option><option value="high">高</option><option value="low">低</option></select></label>
+      <label class="field-control field-span-2"><span>下载过滤器 <small>可选</small></span><input id="channel_editor_filter" placeholder="message_date >= 2026-01-01 00:00:00"></label>
+      <label class="toggle-control field-span-2"><input id="channel_editor_enabled" type="checkbox" checked><span class="toggle-track"></span><span>启用频道</span></label>
+      <footer class="dialog-footer field-span-2"><button id="cancel_channel_editor" class="secondary-button" type="button">取消</button><button class="save-config-button" type="submit">保存频道</button></footer>
+    </form>
+  </dialog>
+
+  <script src="static/layui/layui.js"></script>
+  <script src="static/batch.js"></script>
+  <script>
+    layui.use(['table', 'element', 'layer'], function () {
+      var table = layui.table;
+      var element = layui.element;
+      var layer = layui.layer;
+      var $ = layui.$;
+      var download_list_table_data = [];
+      var totalChannelCount = 0;
+      var downloadingChannelCount = 0;
+      var waitingChannelCount = 0;
+      var failedChannelCount = 0;
+      var configLoaded = false;
+      var configDirty = false;
+      var savedSecretStatus = {};
+      var libraryPage = 1;
+      var libraryTotal = 0;
+      var libraryRecords = {};
+      var importBatchId = 0;
+      var importPollTimer = 0;
+      var importSourceName = '手动粘贴';
+      var storageAvailable = true;
+      var currentChannel = null;
+      var channelRecords = {};
+      var channelFilePage = 1;
+      var channelFileTotal = 0;
+      var currentView = 'queue';
+      var queueStatusFilter = '';
+      var lastQueueSignature = '';
+      var queueTimer = 0;
+      var activeTimer = 0;
+      var historyTimer = 0;
+      var failedTimer = 0;
+      var currentTransfer = {};
+      var globalDownloadState = 'paused';
+      var storageIssue = '';
+      var channelPage = 1;
+      var channelTotal = 0;
+      var channelOrderSignature = '';
+      var channelDataSignature = '';
+      var channelRefreshPending = false;
+      var systemRefreshPending = false;
+      var activeRefreshPending = false;
+      var channelTableReady = false;
+      var pausedChannelCount = 0;
+      var systemFailureCount = 0;
+      var channelActionPending = {};
+      var channelMutationVersion = 0;
+
+      function updateMetricCounts() {
+        $("#total_channel_count").text(totalChannelCount);
+        $("#downloading_channel_count").text(downloadingChannelCount);
+        $("#waiting_channel_count").text(waitingChannelCount);
+        $("#failed_channel_count").text(failedChannelCount);
+      }
+
+      function showStatus(message, state, options) {
+        options = options || {};
+        state = state || 'info';
+        var titles = { success: '操作成功', error: '操作失败', warning: '请注意', info: '处理中' };
+        var icons = { success: '✓', error: '!', warning: '!', info: 'i' };
+        var status = $('#ui_status');
+        window.clearTimeout(showStatus.timer);
+        $('#ui_status_icon').text(icons[state] || 'i');
+        $('#ui_status_title').text(options.title || titles[state] || '提示');
+        $('#ui_status_message').text(message);
+        status.attr('data-state', state).attr('aria-live', state === 'error' ? 'assertive' : 'polite').addClass('is-visible');
+        var duration = options.duration === undefined ? (state === 'error' ? 12000 : (state === 'success' ? 4200 : 6000)) : options.duration;
+        if (duration > 0) {
+          showStatus.timer = window.setTimeout(function () { status.removeClass('is-visible'); }, duration);
+        }
+      }
+
+      $('#ui_status_close').on('click', function () {
+        window.clearTimeout(showStatus.timer);
+        $('#ui_status').removeClass('is-visible');
+      });
+
+      function escapeHtml(value) {
+        return $('<div>').text(value === undefined || value === null ? '' : String(value)).html();
+      }
+
+      function setEmptyView(view,count) {
+        var empty=Number(count)===0, panel=$('#panel-'+view);
+        panel.toggleClass('is-empty',empty);
+        $('#empty_'+view).prop('hidden',!empty);
+        if(view==='queue') {
+          var filtered=!!($('#queue_search').val()||'').trim() || !!queueStatusFilter;
+          panel.toggleClass('has-no-filters',!filtered);
+          $('#empty_add_channel').text(filtered?'添加频道':'添加第一个频道');
+          $('#empty_queue h2').text(filtered?'没有找到匹配的频道':'第一份归档，从一个频道开始。');
+          $('#empty_queue p').text(filtered?'换一个关键词或状态筛选，也可以添加新的频道。':'添加你已加入的频道，把图片、视频和文件保存到自己的设备。');
+        }
+        if(view==='failed') $('#retry_all_tasks').prop('disabled',empty);
+      }
+      $('[data-empty-view]').on('click',function(){activateView(this.dataset.emptyView);});
+      function formatCompletedAt(value) {
+        if (!value) {
+          return '';
+        }
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return value;
+        }
+        return date.toLocaleString('zh-CN', { hour12: false });
+      }
+
+      function formatBytes(value) {
+        var bytes = Number(value || 0);
+        if (!bytes) {
+          return '0 B';
+        }
+        var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        var unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+        return (bytes / Math.pow(1024, unitIndex)).toFixed(unitIndex > 1 ? 1 : 0) + ' ' + units[unitIndex];
+      }
+
+      function mediaTypeLabel(value) {
+        return ({
+          photo: '图片', video: '视频', document: '文件', audio: '音频',
+          voice: '语音', video_note: '视频消息', animation: '动图', msg: '文本'
+        })[value] || '文件';
+      }
+
+      function taskStatusLabel(value) {
+        return ({
+          queued: '等待中', downloading: '下载中', retrying: '等待重试',
+          retry_requested: '恢复中', failed: '失败', completed: '已完成',
+          skipped: '已跳过', cancelled: '已取消', suspended: '已挂起'
+        })[value] || '等待中';
+      }
+
+      function channelStatusLabel(value) {
+        return ({
+          validating: '待校验', ready: '就绪', scanning: '扫描中',
+          queued: '等待下载', downloading: '正在下载', backoff: '稍后重试',
+          paused: '已暂停', blocked: '需处理', completed: '已完成',
+          disabled: '已停用', suspended: '已挂起'
+        })[value] || '就绪';
+      }
+
+      function progressMarkup(progress, downloaded, total, speed, eta) {
+        var value = Math.max(0, Math.min(Number(progress || 0), 100));
+        var detail = (downloaded || '0 B') + ' / ' + (total || '0 B');
+        var motion = speed || '等待进度';
+        if (eta && eta !== '—' && motion !== eta) {
+          motion += ' · ' + (eta === '等待继续' || eta === '等待数据' ? eta : '剩余 ' + eta);
+        }
+        return '<div class="mobile-transfer-progress"><div><b>' + value + '%</b><span>' + escapeHtml(detail) + '</span></div><i><span style="width:' + value + '%"></span></i><small>' + escapeHtml(motion) + '</small></div>';
+      }
+
+      function channelTaskSummary(record) {
+        var waiting = Number(record.queued || 0) + Number(record.retrying || 0) + Number(record.retry_requested || 0);
+        var active = Number(record.downloading || 0);
+        var completed = Number(record.completed || 0) + Number(record.skipped || 0);
+        var failed = Number(record.failed || 0);
+        return '<div class="channel-task-summary" title="待处理 ' + waiting + '，下载中 ' + active + '，已完成 ' + completed + '，异常 ' + failed + '">' +
+          '<div class="channel-task-stack"><i class="is-complete" style="width:' + Math.max(0, Math.min(Number(record.channel_progress || 0), 100)) + '%"></i></div>' +
+          '<small>待 ' + waiting + ' · 下 ' + active + ' · 完 ' + completed + (failed ? ' · 异 ' + failed : '') + '</small></div>';
+      }
+
+      function applyChannelStartAvailability() {
+        var startButtons = $('.channel-state-button.is-start, .mobile-channel-state[data-action="start"]');
+        startButtons.prop('disabled', !storageAvailable);
+        startButtons.attr('title', storageAvailable ? '' : (storageIssue + '，无法开始频道下载'));
+      }
+
+      function messageLink(record, label) {
+        if (!record.telegram_url) {
+          return '';
+        }
+        return '<a class="task-link" href="' + escapeHtml(record.telegram_url) + '" target="_blank" rel="noopener">' + escapeHtml(label || '原消息') + '</a>';
+      }
+
+      function downloadLocationActions(record) {
+        return '<span class="task-actions"><button class="open-download-folder" type="button" data-path="' + escapeHtml(record.save_path || '') + '" title="在此 Mac 的 Finder 中打开下载目录">打开目录</button>' + messageLink(record, '原消息') + '</span>';
+      }
+
+      function queueActions(record) {
+        var actions = messageLink(record, '原消息');
+        if (['downloading', 'suspended'].indexOf(record.status) === -1) {
+          actions += '<button class="task-cancel-button" type="button" data-chat="' + escapeHtml(record.chat) + '" data-id="' + escapeHtml(record.id) + '">取消</button>';
+        }
+        return '<span class="task-actions">' + actions + '</span>';
+      }
+
+      function channelActions(record) {
+        if ((record.display_status || record.status) === 'completed') {
+          return '<span class="task-actions"><button class="channel-detail-button" lay-event="detail" type="button">详情</button></span>';
+        }
+        var action = record.channel_action || (record.paused ? 'start' : 'pause');
+        if (record.action_pending) {
+          return '<span class="task-actions"><button class="channel-detail-button" lay-event="detail" type="button">详情</button><button class="channel-state-button is-loading" type="button" disabled>' + (action === 'start' ? '正在开始…' : '正在暂停…') + '</button></span>';
+        }
+        if (record.start_blocked) return '<span class="task-actions"><button class="channel-detail-button" lay-event="detail" type="button">详情</button><button type="button" disabled>等待连接</button></span>';
+        var label = action === 'start' ? '▶ 开始' : 'Ⅱ 暂停';
+        return '<span class="task-actions"><button class="channel-detail-button" lay-event="detail" type="button">详情</button><button class="channel-state-button is-' + action + '" lay-event="' + action + '" type="button">' + label + '</button></span>';
+      }
+
+      function channelStateMarkup(record) {
+        var status = record.display_status || record.status;
+        if (record.start_blocked) return '<div class="channel-state-cell"><span class="status-badge">等待连接</span><small>' + escapeHtml(record.state_reason) + '</small></div>';
+        return '<div class="channel-state-cell"><span class="status-badge status-' + escapeHtml(status) + '">' + escapeHtml(channelStatusLabel(status)) + '</span><small title="' + escapeHtml(record.state_reason || '') + '">' + escapeHtml(record.state_reason || '') + '</small></div>';
+      }
+
+      function channelProgressMarkup(record) {
+        var byteLabel = record.channel_byte_progress === null || record.channel_byte_progress === undefined ? '容量未知' : '容量 ' + record.channel_byte_progress + '%';
+        return '<div class="channel-progress-cell" title="按文件 ' + escapeHtml(record.channel_progress) + '%；' + escapeHtml(byteLabel) + '"><b>' + escapeHtml(record.channel_progress_label) + '</b><span>' + escapeHtml(record.channel_progress || 0) + '%</span></div>';
+      }
+
+      function channelRecordSignature(record) {
+        return [
+          record.chat, record.chat_title, record.display_status, record.status,
+          record.state_reason, record.queued, record.downloading, record.retrying,
+          record.retry_requested, record.completed, record.skipped, record.failed,
+          record.channel_progress, record.channel_progress_label,
+          record.channel_byte_progress, record.total_size, record.last_activity,
+          record.channel_action, record.paused
+        ].join('|');
+      }
+
+      function channelRecordsSignature(records) {
+        return JSON.stringify((records || []).map(channelRecordSignature));
+      }
+
+      function mobileChannelMarkup(record) {
+        var action = record.channel_action || (record.paused ? 'start' : 'pause');
+        var actionLabel = record.action_pending ? (action === 'start' ? '正在开始…' : '正在暂停…') : (action === 'start' ? '▶ 开始' : 'Ⅱ 暂停');
+        var displayStatus = record.display_status || record.status;
+        var overallProgress = Math.max(0, Math.min(Number(record.channel_progress || 0), 100));
+        var capacityProgress = record.channel_byte_progress === null || record.channel_byte_progress === undefined ? '未知' : record.channel_byte_progress + '%';
+        var channelActionMarkup = displayStatus === 'completed'
+          ? '<button class="mobile-channel-detail" data-chat="' + escapeHtml(record.chat) + '" type="button">详情</button>'
+          : '<button class="mobile-channel-detail" data-chat="' + escapeHtml(record.chat) + '" type="button">详情</button><button class="mobile-channel-state" data-chat="' + escapeHtml(record.chat) + '" data-action="' + action + '" type="button"' + (record.action_pending ? ' disabled' : '') + '>' + actionLabel + '</button>';
+        return '<article class="mobile-download-row mobile-channel-row channel-progress-row" data-chat="' + escapeHtml(record.chat) + '" style="--channel-progress:' + overallProgress + '%">' +
+          '<div class="mobile-record-main"><span class="record-kicker"><b>频道</b>' + escapeHtml(record.chat) + '</span><strong>' + escapeHtml(record.chat_title || record.chat) + '</strong><span>' + escapeHtml(record.channel_progress_label) + ' 个文件 · 容量进度 ' + escapeHtml(capacityProgress) + '</span><small class="channel-state-reason">' + escapeHtml(record.state_reason || '') + '</small><span class="task-actions">' + channelActionMarkup + '</span></div>' +
+          '<div class="mobile-record-meta"><b class="status-text status-' + escapeHtml(displayStatus) + '">' + escapeHtml(channelStatusLabel(displayStatus)) + '</b><strong class="channel-progress-value">' + overallProgress + '%</strong><span>' + escapeHtml(record.channel_progress_label) + '</span><time>' + escapeHtml(formatCompletedAt(record.last_activity)) + '</time></div>' +
+          '</article>';
+      }
+
+      function renderMobileRecords(container, records, completed) {
+        var target = $(container);
+        if (!records || !records.length) {
+          target.html('<div class="mobile-empty">' + (completed ? '暂无完成记录' : '暂无队列任务') + '</div>');
+          return;
+        }
+        var content = records.map(function (record) {
+          var chatLabel = record.chat_title || record.chat || '未知频道';
+          var statusValue = completed ? '已完成' : taskStatusLabel(record.status);
+          var detail = completed
+            ? '<time>' + escapeHtml(formatCompletedAt(record.completed_at)) + '</time>'
+            : '<span>' + escapeHtml(record.download_speed || '等待中') + '</span>';
+          var actions = completed
+            ? downloadLocationActions(record)
+            : queueActions(record);
+          var progress = completed ? '' : progressMarkup(record.download_progress, record.downloaded_size, record.total_size, record.download_speed, record.eta);
+          return '<article class="mobile-download-row' + (completed ? '' : ' has-progress') + '">' +
+            '<div class="mobile-record-main"><span class="record-kicker"><b>' + escapeHtml(mediaTypeLabel(record.media_type)) + '</b>' + escapeHtml(chatLabel) + '</span><strong>' + escapeHtml(record.filename) + '</strong><span>消息 #' + escapeHtml(record.id) + (record.queue_position ? ' · 队列 ' + escapeHtml(record.queue_position) : '') + '</span>' + actions + '</div>' +
+            '<div class="mobile-record-meta"><b class="status-text status-' + escapeHtml(record.status || 'completed') + '">' + escapeHtml(statusValue) + '</b><span>' + escapeHtml(record.total_size) + '</span>' + detail + '</div>' +
+            progress +
+            '</article>';
+        }).join('');
+        target.html(content);
+      }
+
+      function renderFailedMobileRecords(records) {
+        var target = $('#mobile_failed_list');
+        if (!records || !records.length) {
+          target.html('<div class="mobile-empty">没有失败任务</div>');
+          return;
+        }
+        target.html(records.map(function (record) {
+          var chatLabel = record.chat_title || record.chat || '未知频道';
+          return '<article class="mobile-download-row mobile-failed-row">' +
+            '<div class="mobile-record-main"><span class="record-kicker"><b>' + escapeHtml(mediaTypeLabel(record.media_type)) + '</b>' + escapeHtml(chatLabel) + '</span><strong>' + escapeHtml(record.filename) + '</strong><span>消息 #' + escapeHtml(record.id) + '</span><p>' + escapeHtml(record.error || '下载失败') + '</p>' + messageLink(record, '原消息') + '</div>' +
+            '<div class="mobile-record-meta"><b>失败</b><span>' + escapeHtml(record.attempts + '/' + record.max_attempts + ' 次') + '</span><button class="retry-one-button" data-chat="' + escapeHtml(record.chat) + '" data-id="' + escapeHtml(record.id) + '" type="button" title="重试任务" aria-label="重试任务">↻</button></div>' +
+            '</article>';
+        }).join(''));
+      }
+
+      function renderMobileChannels(records) {
+        var target = $('#mobile_channel_list');
+        if (!records || !records.length) {
+          target.html('<div class="mobile-empty">没有符合条件的频道</div>');
+          return;
+        }
+        target.html(records.map(mobileChannelMarkup).join(''));
+      }
+
+      function renderMobileChannelFiles(records) {
+        var target = $('#mobile_channel_file_list');
+        if (!records || !records.length) {
+          target.html('<div class="mobile-empty">该频道暂无文件记录</div>');
+          return;
+        }
+        target.html(records.map(function (record) {
+          return '<article class="mobile-download-row">' +
+            '<div class="mobile-record-main"><span class="record-kicker"><b>' + escapeHtml(mediaTypeLabel(record.media_type)) + '</b>消息 #' + escapeHtml(record.id) + '</span><strong>' + escapeHtml(record.filename) + '</strong><span class="task-actions">' + messageLink(record, '原消息') + '</span></div>' +
+            '<div class="mobile-record-meta"><b class="status-text status-' + escapeHtml(record.status) + '">' + escapeHtml(taskStatusLabel(record.status)) + '</b><span>' + escapeHtml(record.total_size) + '</span><time>' + escapeHtml(formatCompletedAt(record.updated_at || record.completed_at)) + '</time></div>' +
+            '</article>';
+        }).join(''));
+      }
+
+      function updateMobileDetailPagination() {
+        var pages = Math.max(Math.ceil(channelFileTotal / 50), 1);
+        $('#mobile_detail_page').text('第 ' + channelFilePage + ' / ' + pages + ' 页');
+        $('#mobile_detail_previous').prop('disabled', channelFilePage <= 1);
+        $('#mobile_detail_next').prop('disabled', channelFilePage >= pages);
+      }
+
+      function loadMobileChannelFiles(page) {
+        if (!currentChannel) { return; }
+        $.ajax({
+          url: 'api/channel_files',
+          type: 'get',
+          dataType: 'json',
+          data: { chat_id: currentChannel.chat, page: page, limit: 50 },
+          success: function (result) {
+            channelFilePage = page;
+            channelFileTotal = result.count || 0;
+            renderMobileChannelFiles(result.data || []);
+            updateMobileDetailPagination();
+          }
+        });
+      }
+
+      var wizardStep = -1, loginStage = 'waiting', loginBusy = false, loginPhoneOverride = false;
+      var wizardSections = ['setup-telegram','setup-network','setup-login','setup-channels','setup-storage'];
+      var wizardTitles = ['API 凭证','网络连接','登录账号','添加频道','保存位置与开始'];
+      var testedNetwork = null;
+      function networkCandidate() { var v=collectConfig(); return JSON.stringify({network_mode:v.network_mode,node_content:v.node_content,node_index:v.node_index,proxy:v.proxy}); }
+      function showWizard(step) {
+        wizardStep = Math.max(0, Math.min(4, step)); activateView('config');
+        $('#config_form').addClass('is-guided');
+        $('.wizard-toolbar,.wizard-actions').prop('hidden', false);
+        $('#config_form > .config-section').removeClass('wizard-current');
+        $('#'+wizardSections[wizardStep]).addClass('wizard-current');
+        $('#wizard_progress').text('第 '+(wizardStep+1)+' 步 / 共 5 步');
+        $('#wizard_title').text(wizardTitles[wizardStep]);
+        $('#wizard_back').prop('disabled',wizardStep===0);
+        $('#wizard_next').text(['下一步','保存并去登录','下一步：添加频道','下一步：保存位置','开始下载'][wizardStep]);
+        $('#wizard_hint').text(wizardStep===4?'默认文件夹已选好，也可以更换。':'');
+        refreshTelegramLogin(); window.scrollTo({top:0,behavior:'auto'});
+      }
+      $('#wizard_back').on('click',function(){showWizard(wizardStep-1);});
+      $('#wizard_exit').on('click',function(){wizardStep=-1;$('#config_form').removeClass('is-guided');$('.wizard-toolbar,.wizard-actions').prop('hidden',true);});
+      $('#wizard_next').on('click',function(){
+        if(wizardStep===0){
+          if(!/^[1-9]\d*$/.test(String($('#api_id').val()||'')) || (!savedSecretStatus.api_hash && !/^[a-fA-F0-9]{32}$/.test(String($('#api_hash').val()||'')))){$('#wizard_hint').text('请先填写官方页面提供的 API ID 和 API Hash。');return;}
+          showWizard(1);
+        } else if(wizardStep===1){if(testedNetwork!==networkCandidate()){$('#wizard_hint').text('请先测试当前网络，成功后再继续。');return;}$('#config_form').trigger('submit');}
+        else if(wizardStep===2){if(!setupState || !setupState.telegram_ready){$('#wizard_hint').text('先完成本页登录，成功后再继续。');return;}showWizard(3);}
+        else if(wizardStep===3){$.getJSON('api/setup/status').done(function(state){setupState=state;if(!state.enabled_count){$('#wizard_hint').text('请先添加一个已加入的频道。');return;}showWizard(4);});}
+        else {if(configDirty){$('#wizard_hint').text('正在保存目录…');$('#config_form').trigger('submit');return;} if(!setupState || !setupState.telegram_ready){$('#wizard_hint').text(setupState ? setupState.message : '正在检查连接…');return;}activateView('queue');$('#download_state').attr('data-value','start_all');download_state_change(document.getElementById('download_state'));}
+      });
+      function refreshTelegramLogin(){
+        if(loginBusy)return;
+        $.getJSON('api/setup/login').done(function(state){
+          if(loginPhoneOverride){state.stage='phone';state.message='输入另一个手机号，重新获取验证码。';}
+          var changed = loginStage!==state.stage;loginStage=state.stage;
+          $('#telegram_login_message').text(state.message + (state.retry_after ? '（'+state.retry_after+' 秒后可重试）' : ''));
+          var editable=['phone','code','password'].indexOf(loginStage)>=0;
+          $('#telegram_login_field,#telegram_login_submit').prop('hidden',!editable);
+          $('#telegram_login_submit').prop('disabled',!!state.retry_after).text(loginStage==='phone'?'发送验证码':loginStage==='code'?'验证并登录':'确认密码');
+          $('#telegram_login_change').prop('hidden',loginStage!=='code');
+          $('#telegram_login_label').text(loginStage==='phone'?'手机号（含国家区号）':loginStage==='code'?'Telegram 验证码':'两步验证密码');
+          $('#telegram_login_value').attr('type',loginStage==='phone'?'tel':'password').attr('placeholder',loginStage==='phone'?'+86 手机号':loginStage==='code'?'填写刚收到的验证码':'填写 Telegram 两步验证密码');
+          if(changed)$('#telegram_login_value').val('');
+        });
+      }
+      $('#telegram_login_change').on('click',function(){loginPhoneOverride=true;loginStage='phone';$('#telegram_login_value').val('').attr('type','tel').attr('placeholder','+86 手机号');$('#telegram_login_label').text('手机号（含国家区号）');$('#telegram_login_submit').text('发送验证码');});
+      $('#quit_desktop').on('click',function(){if(!window.confirm('退出下载器会停止当前下载，进度会保留。确定退出吗？'))return;$.ajax({url:'api/app/quit',type:'POST',contentType:'application/json',data:'{}'}).done(function(){$('#header_state_text').text('下载器已退出，可以关闭此页面。');});});
+      $('#restart_desktop,#wizard_restart').on('click',function(){$.ajax({url:'api/app/restart',type:'POST',contentType:'application/json',data:'{}'}).done(function(){$('#telegram_login_message').text('正在重新连接，请稍等…');});});
+      $('#telegram_login_submit').on('click',function(){
+        var value=String($('#telegram_login_value').val()||'');if(!value)return;
+        loginBusy=true;$('#telegram_login_submit').prop('disabled',true).text('正在连接…');
+        $.ajax({url:'api/setup/login',type:'POST',contentType:'application/json',data:JSON.stringify({action:loginStage,value:value}),timeout:35000}).done(function(result){loginPhoneOverride=false;$('#telegram_login_value').val('');$('#telegram_login_message').text(result.message);}).fail(function(xhr){$('#telegram_login_message').text((xhr.responseJSON||{}).message||'网络连接失败，请稍后重试。');}).always(function(){loginBusy=false;$('#telegram_login_submit').prop('disabled',false);refreshTelegramLogin();refreshSetup();});
+      });
+      $('#telegram_login_value').on('keydown',function(event){if(event.key==='Enter'){event.preventDefault();$('#telegram_login_submit').trigger('click');}});
+      setInterval(refreshTelegramLogin,3000);
+      var setupState = null;
+      function refreshSetup() {
+        $.getJSON('api/setup/status').done(function (state) {
+          setupState = state;
+          $('#restart_desktop').prop('hidden',!state.desktop);
+          $('#quit_desktop').prop('hidden',!state.desktop);$('#logout_button').prop('hidden',!!state.desktop);
+          $('#wizard_restart').prop('hidden',!state.desktop || !state.restart_required);
+          if(wizardStep===4 && state.restart_required)$('#wizard_hint').text('新目录已保存，点击重新连接即可生效。');
+          if(wizardStep<0 && !window.tmdWizardSeen && !state.preview){window.tmdWizardSeen=true;if(!state.telegram_ready)showWizard(state.credentials_saved?2:0);else if(!state.enabled_count)showWizard(3);}
+          $('#step_api').text(state.credentials_saved ? '已保存 · 不代表已登录' : '填写 API ID 和 API Hash');
+          $('#step_network').text(testedNetwork && testedNetwork===networkCandidate() ? '网络测试已通过' : '选择网络并测试连接');
+          $('#step_login').text(state.telegram_ready ? 'Telegram 已登录' : state.preview ? '演示模式 · 未连接 Telegram' : '待登录 Telegram');
+          $('#step_channel').text(state.channel_count ? '已添加 ' + state.channel_count + ' 个频道' : '粘贴频道 ID 或 @用户名');
+          $('#step_start').text(state.storage.available && state.storage.writable !== false ? (state.storage.writable === true ? '保存目录可写' : '目录已选择 · 待检测写入') : '请选择可写的保存目录');
+          $('#setup_progress').text(state.message || (state.channel_count ? '准备就绪。点击「开始下载」，查看文件进入队列。' : '账号已连接，下一步添加你有权限访问的频道。'));
+          $('#open_setup').text(!state.credentials_saved ? '第一步：填写 API' : !state.telegram_ready ? '查看连接与登录说明' : !state.channel_count ? '添加第一个频道' : '开始下载');
+          renderStateButton(globalDownloadState === 'downloading' ? 'pause' : 'continue', currentTransfer);
+        });
+      }
+      $('[data-setup-target]').on('click', function () {
+        activateView('config');
+        document.getElementById(this.dataset.setupTarget).scrollIntoView({block:'start'});
+      });
+      function renderStateButton(value, transfer) {
+        if (!setupState || !setupState.telegram_ready) {
+          $('#download_state').prop('disabled', true).attr('data-value','start_all').html('<span>' + (!setupState ? '检查连接中…' : setupState.preview ? '演示模式' : '等待 Telegram 登录') + '</span>');
+          $('#header_state_text').text(!setupState ? '正在检查下载服务' : setupState.preview ? '界面演示 · 不会下载' : '账号尚未连接');
+          return;
+        }
+        transfer = transfer || currentTransfer || {};
+        var globalRunning = value === 'pause' || value === 'pause_all' || globalDownloadState === 'downloading';
+        var allChannelsPaused = totalChannelCount > 0 && pausedChannelCount === totalChannelCount;
+        var action = !globalRunning || allChannelsPaused ? 'start_all' : 'pause_all';
+        var cannotContinue = action === 'start_all' && !storageAvailable;
+        var label = cannotContinue ? (storageIssue || "保存目录不可用") : (action === 'pause_all' ? "暂停全部" : "开始全部");
+        var symbol = cannotContinue ? "!" : (action === 'pause_all' ? "Ⅱ" : "▶");
+        var button = $("#download_state");
+        if (button.attr('data-value') !== action || button.find('span:last').text() !== label) {
+          button.html('<span class="state-symbol" aria-hidden="true">' + symbol + '</span><span>' + label + '</span>');
+          button.attr("data-value", action);
+        }
+        button.toggleClass("is-paused", action === 'start_all');
+        button.toggleClass("is-loading", false);
+        button.prop('disabled', cannotContinue);
+        button.attr('title', cannotContinue ? (storageIssue + '，请选择可写目录后再继续') : '');
+        var activeFiles = Number(transfer.active_files || 0);
+        var stateLabel = !globalRunning
+          ? (activeFiles ? '全部已暂停 · ' + activeFiles + ' 个文件已挂起' : '全部已暂停')
+          : (activeFiles
+            ? '下载中 · ' + activeFiles + ' 个文件'
+            : (allChannelsPaused ? '服务已开启 · 所有频道已暂停' : (waitingChannelCount ? '等待开始下载' : '服务已开启 · 暂无传输')));
+        $("#header_state_text")
+          .text(stateLabel)
+          .toggleClass("is-paused", !globalRunning || allChannelsPaused);
+        var showNotice = !globalRunning && activeFiles > 0;
+        $('#transfer_notice').prop('hidden', !showNotice);
+        $('#transfer_notice_action').prop('disabled', cannotContinue).text(cannotContinue ? (storageIssue || '保存目录不可用') : '继续下载');
+        if (showNotice) {
+          $('#transfer_notice_title').text(activeFiles + ' 个文件已挂起');
+          $('#transfer_notice_detail').text('已完成 ' + (transfer.progress || 0) + '% · ' + (transfer.downloaded || '0 B') + ' / ' + (transfer.total || '0 B') + '，进度已保留');
+        }
+      }
+
+      function updateDownloadState() {
+        $.ajax({
+          url: "get_download_state",
+          type: "get",
+          dataType: "json",
+          success: function (result) {
+            globalDownloadState = result.state;
+            renderStateButton(result.action, currentTransfer);
+          }
+        });
+      }
+
+      $('#transfer_notice_action').on('click', function () {
+        download_state_change(document.getElementById('download_state'));
+      });
+
+      function setConfigStatus(message, state) {
+        var status = $("#config_status");
+        status.text(message);
+        status.removeClass("is-success is-error is-loading");
+        if (state) {
+          status.addClass("is-" + state);
+        }
+      }
+
+      function setCheckedValues(container, values) {
+        var selected = values || [];
+        $(container + ' input[type="checkbox"]').each(function () {
+          this.checked = selected.indexOf(this.value) !== -1;
+        });
+      }
+
+      function getCheckedValues(container) {
+        var result = [];
+        $(container + ' input[type="checkbox"]:checked').each(function () {
+          result.push(this.value);
+        });
+        return result;
+      }
+
+      function formatList(value) {
+        if (Array.isArray(value)) {
+          return value.join(',');
+        }
+        return value || 'all';
+      }
+
+      function resetSecretVisibility() {
+        $('#node_content').addClass('node-content-private');
+        $('#node_reveal').text('显示内容').attr('aria-pressed','false');
+        $('.secret-toggle').each(function(){
+          $('#'+this.dataset.secretTarget).attr('type','password');
+          $(this).text('显示').attr('aria-pressed','false').attr('aria-label','显示'+(this.dataset.secretTarget==='api_hash'?' API Hash':'节点链接'));
+        });
+      }
+      $('.secret-toggle').on('click',function(){
+        var input=$('#'+this.dataset.secretTarget), visible=input.attr('type')==='password';
+        input.attr('type',visible?'text':'password');
+        $(this).text(visible?'隐藏':'显示').attr('aria-pressed',String(visible)).attr('aria-label',(visible?'隐藏':'显示')+(this.dataset.secretTarget==='api_hash'?' API Hash':'节点链接'));
+      });
+      $('.setup-steps a').on('click',function(event){
+        event.preventDefault();
+        var target=document.querySelector(this.getAttribute('href'));
+        target.scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+        var control=target.querySelector('input:not([hidden]),button');
+        if(control) control.focus({preventScroll:true});
+        $('.setup-steps a').removeAttr('aria-current');
+        $(this).attr('aria-current','step');
+      });
+      function secretPlaceholder(hasValue) {
+        return hasValue ? '已保存，留空则保持不变' : '尚未设置';
+      }
+
+      function populateConfig(config) {
+        var formats = config.file_formats || {};
+        var secrets = config.secret_status || {};
+        savedSecretStatus = secrets;
+        resetSecretVisibility();
+        var proxy = config.proxy || {};
+        $("#api_id").val(config.api_id || '');
+        $("#api_hash").val('').attr('placeholder', secretPlaceholder(secrets.api_hash));
+        $("#bot_token").val('').attr('placeholder', secretPlaceholder(secrets.bot_token));
+        $("#web_login_secret").val('').attr('placeholder', secretPlaceholder(secrets.web_login_secret));
+        $("#proxy_password").val('').attr('placeholder', secretPlaceholder(secrets.proxy_password));
+
+        setCheckedValues('#media_types', config.media_types || ['audio', 'photo', 'video', 'document']);
+        setCheckedValues('#file_path_prefix', config.file_path_prefix || ['chat_title', 'media_datetime']);
+        setCheckedValues('#file_name_prefix', config.file_name_prefix || ['message_id', 'file_name']);
+        $("#format_audio").val(formatList(formats.audio));
+        $("#format_document").val(formatList(formats.document));
+        $("#format_video").val(formatList(formats.video));
+        $("#save_path").val(config.save_path || '');
+        $("#file_name_prefix_split").val(config.file_name_prefix_split !== undefined ? config.file_name_prefix_split : ' - ');
+        $("#date_format").val(config.date_format || '%Y_%m');
+        $("#max_download_task").val(config.max_download_task || 5);
+        $("#max_concurrent_transmissions").val(config.max_concurrent_transmissions || 25);
+        $("#language").val(config.language || 'ZH');
+        $("#web_host").val(config.web_host || '127.0.0.1');
+        $("#web_port").val(config.web_port || 5000);
+        $("#hide_file_name").prop('checked', !!config.hide_file_name);
+        $("#enable_download_txt").prop('checked', !!config.enable_download_txt);
+        $("#keep_service_alive").prop('checked', !!config.keep_service_alive);
+        $("#proxy_enabled").prop('checked', !!proxy.enabled).trigger('change');
+        $("#proxy_scheme").val(proxy.scheme || 'socks5');
+        $("#proxy_hostname").val(proxy.hostname || '');
+        $("#proxy_port").val(proxy.port || '');
+        $("#proxy_username").val(proxy.username || '');
+        var network = config.network_status || {};
+        $('#network_mode').val(network.mode || (proxy.enabled ? 'proxy' : 'direct'));
+        $('#node_content').val('');
+        resetNodeImport();
+        $('#ss_current_node').text(network.ss_configured ? '已保存：' + (network.ss_name || '节点') + ' · ' + String(network.node_protocol || 'ss').toUpperCase() + '。留空保留当前节点。' : '还没有保存节点');
+        $('#ss_component_note').text(network.ss_installed ? '节点运行组件已就绪。' : 'Docker 版内置节点组件；Mac 本机运行请先安装 sing-box，或使用已有代理软件的 SOCKS5。');
+        updateNetworkFields();
+        configDirty = false;
+        $('#config_form').removeClass('has-changes');
+      }
+
+      function loadConfig(force) {
+        if (configLoaded && !force) {
+          return;
+        }
+        setConfigStatus('正在读取配置…', 'loading');
+        $.ajax({
+          url: 'api/config',
+          type: 'get',
+          dataType: 'json',
+          success: function (result) {
+            populateConfig(result.config || {});
+            configLoaded = true;
+            setConfigStatus('修改会在保存后生效', 'success');
+          },
+          error: function (xhr) {
+            var response = xhr.responseJSON || {};
+            setConfigStatus(response.message || '配置读取失败', 'error');
+          }
+        });
+      }
+
+      function updateNetworkFields() {
+        var mode = $('#network_mode').val();
+        $('input[name=network_choice]').each(function(){this.checked=this.value===mode;});
+        $('#proxy_network_help').prop('hidden', mode !== 'proxy');
+        $('#ss_fields').prop('hidden', mode !== 'ss');
+        $('#proxy_fields').prop('hidden', mode !== 'proxy');
+        $('#proxy_enabled').prop('checked', mode === 'proxy').trigger('change');
+        $('#network_test_result').removeClass('is-error is-success').text('测试不会保存设置，也不会中断已有下载。');
+      }
+      var nodeImportVersion = 0, nodeImportParsed = false;
+      function resetNodeImport() {
+        nodeImportVersion += 1; nodeImportParsed = false;
+        $('#node_selection').empty().append($('<option></option>').val('-1').text('请选择一个节点'));
+        $('#node_selection_field,#node_unsupported,#edit_node_content').prop('hidden',true);
+        $('#node_editor').prop('hidden',false);
+        $('#node_unsupported_list').empty();
+        $('#node_import_status').removeClass('is-error is-success').text('读取不会保存设置，也不会连接任何节点。');
+      }
+      function nodeImportReady() {
+        if ($('#network_mode').val() !== 'ss' || !String($('#node_content').val() || '').trim()) return true;
+        if (nodeImportParsed && $('#node_selection').val() !== '-1') return true;
+        $('#node_import_status').addClass('is-error').text(nodeImportParsed ? '请选择一个可用节点，再测试或保存。' : '请先读取并识别，再选择一个节点。');
+        document.getElementById(nodeImportParsed ? 'node_selection' : 'read_nodes').focus();
+        return false;
+      }
+      $('#node_content').on('input',function(){resetNodeImport();$('#network_test_result').removeClass('is-error is-success').text('内容已更改，请重新读取并测试。');});
+      $('#node_selection').on('change',function(){
+        var chosen=this.value!=='-1';
+        $('#node_import_status').toggleClass('is-error',!chosen).toggleClass('is-success',chosen).text(chosen ? '已选择 '+this.options[this.selectedIndex].text+'。可测试连接。' : '请选择一个可用节点，再测试或保存。');
+        $('#network_test_result').removeClass('is-error is-success').text('节点已更改，请测试当前选择的连接。');
+      });
+      $('#node_reveal').on('click',function(){var hidden=$('#node_content').hasClass('node-content-private');$('#node_content').toggleClass('node-content-private',!hidden);$(this).text(hidden?'隐藏内容':'显示内容').attr('aria-pressed',String(hidden));});
+      $('#edit_node_content').on('click',function(){$('#node_editor').prop('hidden',false);$(this).prop('hidden',true);document.getElementById('node_content').focus();});
+      $('#upload_node_file').on('click',function(){document.getElementById('node_file').click();});
+      $('#node_file').on('change',function(){
+        var file=this.files[0];this.value='';if(!file)return;
+        if(file.size>262144){$('#node_import_status').addClass('is-error').text('文件超过 256 KB，请只导出需要的节点。');return;}
+        var version=nodeImportVersion;
+        var reader=new FileReader();
+        reader.onload=function(){if(version!==nodeImportVersion)return;$('#node_content').val(String(reader.result||'')).trigger('input');$('#read_nodes').trigger('click');};
+        reader.onerror=function(){$('#node_import_status').addClass('is-error').text('文件读取失败，请重新选择，或直接粘贴内容。');};
+        reader.readAsText(file,'UTF-8');
+      });
+      $('#read_nodes').on('click',function(){
+        var content=String($('#node_content').val()||'');
+        if(!content.trim()){$('#node_import_status').addClass('is-error').text('请先粘贴内容，或上传配置文件。');document.getElementById('node_content').focus();return;}
+        resetNodeImport();var version=nodeImportVersion,button=$(this);
+        button.prop('disabled',true).text('正在识别…');
+        $('#node_import_status').text('正在读取节点，不会建立网络连接…');
+        $.ajax({url:'api/network/import',type:'post',dataType:'json',timeout:15000,contentType:'application/json; charset=utf-8',data:JSON.stringify({content:content}),
+          success:function(result){
+            if(version!==nodeImportVersion)return;
+            var supported=(result.nodes||[]).filter(function(n){return n.supported;});
+            var unsupported=(result.nodes||[]).filter(function(n){return !n.supported;});
+            supported.forEach(function(n){$('#node_selection').append($('<option></option>').val(n.index).text(n.name+' · '+n.protocol));});
+            unsupported.forEach(function(n){$('#node_unsupported_list').append($('<li></li>').text(n.name+'：'+n.message));});
+            $('#node_unsupported').prop('hidden',!unsupported.length);
+            $('#node_unsupported_summary').text(unsupported.length+' 个节点暂不兼容，查看原因');
+            $('#node_selection_field').prop('hidden',!supported.length);
+            nodeImportParsed=!!supported.length;
+            var formats={links:'节点链接',yaml:'YAML',json:'JSON',base64:'Base64 链接列表'};
+            $('#node_import_status').toggleClass('is-success',!!supported.length).toggleClass('is-error',!supported.length).text('已识别 '+(formats[result.format]||'配置')+' · '+supported.length+' 个可选节点'+(unsupported.length?'，'+unsupported.length+' 个暂不兼容':'')+(supported.length>1?'。请选择一个。':supported.length?'。可测试连接。':'。请检查下方原因。'));
+            if(supported.length){$('#node_editor').prop('hidden',true);$('#edit_node_content').prop('hidden',false);}
+            if(supported.length===1)$('#node_selection').val(supported[0].index);
+            if(supported.length)document.getElementById('node_selection').focus();
+          },
+          error:function(xhr,status){if(version!==nodeImportVersion)return;$('#node_import_status').addClass('is-error').text((xhr.responseJSON||{}).message||(status==='timeout'?'读取超时。请确认下载器仍在运行，关闭重复打开的下载器页面后重试。':'读取失败，请检查连接后重试。'));},
+          complete:function(){button.prop('disabled',false).text('读取并识别');}
+        });
+      });
+      $('#network_mode').on('change', updateNetworkFields);
+      $('input[name=network_choice]').on('change',function(){$('#network_mode').val(this.value).trigger('change');});
+      $('#open_setup').on('click', function () {
+        if (setupState && setupState.telegram_ready && setupState.channel_count) { download_state_change({dataset:{value:'start_all'}}); return; }
+        if (setupState && setupState.telegram_ready) { openChannelEditor(null); return; }
+        showWizard(setupState && setupState.credentials_saved ? 1 : 0);
+      });
+      $('#test_network').on('click', function () {
+        var button = $(this); var values = collectConfig();
+        if (!nodeImportReady()) return;
+        button.prop('disabled', true).text('正在连接 Telegram…');
+        $('#network_test_result').removeClass('is-success is-error').text('正在使用当前填写的连接方式检查网络…');
+        $.ajax({url: 'api/network/test', type: 'post', dataType: 'json', timeout: 30000,
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({network_mode: values.network_mode, node_content: values.node_content, node_index: values.node_index, proxy: values.proxy}),
+          success: function (result) { testedNetwork=JSON.stringify({network_mode:values.network_mode,node_content:values.node_content,node_index:values.node_index,proxy:values.proxy}); $('#step_network').text('网络测试已通过'); $('#network_test_result').addClass('is-success').text(result.message); },
+          error: function (xhr) { $('#network_test_result').addClass('is-error').text((xhr.responseJSON || {}).message || '测试超时，请检查网络后重试。'); },
+          complete: function () { button.prop('disabled', false).text('测试当前填写的网络'); }
+        });
+      });
+
+      function collectConfig() {
+        return {
+          network_mode: $("#network_mode").val(),
+          node_content: $("#node_content").val(),
+          node_index: $("#node_selection").val(),
+          api_id: $("#api_id").val(),
+          api_hash: $("#api_hash").val(),
+          bot_token: $("#bot_token").val(),
+          media_types: getCheckedValues('#media_types'),
+          file_formats: {
+            audio: $("#format_audio").val(),
+            document: $("#format_document").val(),
+            video: $("#format_video").val()
+          },
+          save_path: $("#save_path").val(),
+          file_path_prefix: getCheckedValues('#file_path_prefix'),
+          file_name_prefix: getCheckedValues('#file_name_prefix'),
+          file_name_prefix_split: $("#file_name_prefix_split").val(),
+          date_format: $("#date_format").val(),
+          max_download_task: $("#max_download_task").val(),
+          max_concurrent_transmissions: $("#max_concurrent_transmissions").val(),
+          language: $("#language").val(),
+          web_host: $("#web_host").val(),
+          web_port: $("#web_port").val(),
+          web_login_secret: $("#web_login_secret").val(),
+          hide_file_name: $("#hide_file_name").prop('checked'),
+          enable_download_txt: $("#enable_download_txt").prop('checked'),
+          keep_service_alive: $("#keep_service_alive").prop('checked'),
+          proxy: {
+            enabled: $("#proxy_enabled").prop('checked'),
+            scheme: $("#proxy_scheme").val(),
+            hostname: $("#proxy_hostname").val(),
+            port: $("#proxy_port").val(),
+            username: $("#proxy_username").val(),
+            password: $("#proxy_password").val()
+          }
+        };
+      }
+
+      function priorityLabel(value) {
+        return { high: '高', normal: '普通', low: '低' }[value] || '普通';
+      }
+
+      function libraryState(record) {
+        if (!record.enabled) { return '<span class="library-state is-disabled">已停用</span>'; }
+        if (record.validation_status === 'invalid') { return '<span class="library-state is-invalid">校验失败</span>'; }
+        if (record.paused) { return '<span class="library-state is-paused">已暂停</span>'; }
+        return '<span class="library-state is-ready">已启用</span>';
+      }
+
+      function renderChannelLibrary(records) {
+        libraryRecords = {};
+        if (!records.length) {
+          $('#channel_library_rows').html('<p class="library-empty">没有符合条件的频道</p>');
+          return;
+        }
+        var html = records.map(function (record, index) {
+          libraryRecords[index] = record;
+          return '<div class="channel-library-row" data-library-index="' + index + '">' +
+            '<span class="library-channel"><b>' + escapeHtml(record.chat_title || record.chat) + '</b><small>' + escapeHtml(record.chat) + '</small></span>' +
+            '<span>' + escapeHtml(record.group_name || '未分组') + '</span>' +
+            '<span><i class="priority-dot priority-' + escapeHtml(record.priority) + '"></i>' + escapeHtml(priorityLabel(record.priority)) + '</span>' +
+            '<span>#' + escapeHtml(record.last_read_message_id || 0) + '</span>' +
+            '<span>' + libraryState(record) + '</span>' +
+            '<span class="library-actions"><button class="icon-button edit-library-channel" type="button" title="编辑频道" aria-label="编辑频道">✎</button>' +
+            '<button class="icon-button toggle-library-channel" type="button" title="' + (record.enabled ? '停用频道' : '启用频道') + '" aria-label="' + (record.enabled ? '停用频道' : '启用频道') + '">' + (record.enabled ? 'Ⅱ' : '▶') + '</button></span>' +
+            '</div>';
+        }).join('');
+        $('#channel_library_rows').html(html);
+      }
+
+      function loadChannelLibrary(resetPage) {
+        if (resetPage) { libraryPage = 1; }
+        $.ajax({
+          url: 'api/channel_library',
+          type: 'get',
+          dataType: 'json',
+          data: { page: libraryPage, limit: 50, search: ($('#channel_library_search').val() || '').trim() },
+          success: function (result) {
+            libraryTotal = result.count || 0;
+            renderChannelLibrary(result.data || []);
+            var pages = Math.max(Math.ceil(libraryTotal / 50), 1);
+            $('#config_channel_count').text(libraryTotal + ' 个频道');
+            $('#library_page_status').text('第 ' + libraryPage + ' / ' + pages + ' 页');
+            $('#library_previous').prop('disabled', libraryPage <= 1);
+            $('#library_next').prop('disabled', libraryPage >= pages);
+          },
+          error: function () {
+            $('#channel_library_rows').html('<p class="library-empty is-error">频道库读取失败</p>');
+          }
+        });
+      }
+
+      function openChannelEditor(record) {
+        var editing = !!record;
+        $('#channel_editor_title').text(editing ? '编辑频道' : '添加频道');
+        $('#channel_editor_id').val(editing ? record.chat : '').prop('readonly', editing);
+        $('#channel_editor_start').val(editing ? record.last_read_message_id : 0);
+        $('#channel_editor_group').val(editing ? record.group_name : '');
+        $('#channel_editor_priority').val(editing ? record.priority : 'normal');
+        $('#channel_editor_filter').val(editing ? (record.download_filter || '') : '');
+        $('#channel_editor_enabled').prop('checked', editing ? !!record.enabled : true);
+        document.getElementById('channel_editor_dialog').showModal();
+      }
+
+      $('#add_chat, #queue_add_channel, #empty_add_channel').on('click', function () { openChannelEditor(null); });
+      $('#close_channel_editor, #cancel_channel_editor').on('click', function () {
+        document.getElementById('channel_editor_dialog').close();
+      });
+      $('#channel_editor_form').on('submit', function (event) {
+        event.preventDefault();
+        $.ajax({
+          url: 'api/channel_library',
+          type: 'post',
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          data: JSON.stringify({
+            chat_id: $('#channel_editor_id').val(),
+            last_read_message_id: $('#channel_editor_start').val(),
+            group_name: $('#channel_editor_group').val(),
+            priority: $('#channel_editor_priority').val(),
+            download_filter: $('#channel_editor_filter').val(),
+            enabled: $('#channel_editor_enabled').prop('checked')
+          }),
+          success: function (result) {
+            document.getElementById('channel_editor_dialog').close();
+            showStatus(result.message || '频道已保存', 'success');
+            loadChannelLibrary(false);
+            reloadChannelTable(false);
+          },
+          error: function (xhr) {
+            showStatus((xhr.responseJSON || {}).message || '频道保存失败', 'error');
+          }
+        });
+      });
+      $('#channel_library_rows').on('click', '.edit-library-channel', function () {
+        openChannelEditor(libraryRecords[Number($(this).closest('.channel-library-row').attr('data-library-index'))]);
+      }).on('click', '.toggle-library-channel', function () {
+        var record = libraryRecords[Number($(this).closest('.channel-library-row').attr('data-library-index'))];
+        $.ajax({
+          url: 'api/channel_library/state',
+          type: 'post',
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          data: JSON.stringify({ chat_id: record.chat, enabled: !record.enabled }),
+          success: function (result) { showStatus(result.message, 'success'); loadChannelLibrary(false); reloadChannelTable(false); },
+          error: function (xhr) { showStatus((xhr.responseJSON || {}).message || '状态更新失败', 'error'); }
+        });
+      });
+      $('#channel_library_search').on('input', function () {
+        window.clearTimeout(loadChannelLibrary.searchTimer);
+        loadChannelLibrary.searchTimer = window.setTimeout(function () { loadChannelLibrary(true); }, 260);
+      });
+      $('#library_previous').on('click', function () { if (libraryPage > 1) { libraryPage -= 1; loadChannelLibrary(false); } });
+      $('#library_next').on('click', function () { if (libraryPage * 50 < libraryTotal) { libraryPage += 1; loadChannelLibrary(false); } });
+
+      function resetImportCenter() {
+        window.clearTimeout(importPollTimer);
+        importBatchId = 0;
+        importSourceName = '手动粘贴';
+        $('#batch_chat_input').val('');
+        $('#batch_chat_file').val('');
+        $('#batch_file_name').text('也可以直接粘贴文本');
+        $('#batch_chat_preview').text('尚未创建导入批次');
+        $('#import_compose').prop('hidden', false);
+        $('#import_review').prop('hidden', true);
+        $('#confirm_batch_chat').prop('disabled', true).text('确认添加');
+        $('#undo_import_batch').prop('hidden', true);
+      }
+
+      function importStatusLabel(status) {
+        return { pending: '等待校验', validating: '校验中', valid: '可导入', duplicate: '重复', invalid: '无效', imported: '已入库' }[status] || status;
+      }
+
+      function renderImportBatch(result) {
+        var batch = result.batch || {};
+        var items = result.items || [];
+        importBatchId = batch.id || importBatchId;
+        $('#import_batch_label').text('批次 #' + importBatchId + ' · ' + (batch.source_name || '手动粘贴'));
+        $('#import_batch_state').text(batch.status === 'validating' ? '正在校验 Telegram 权限' : (batch.status === 'imported' ? '已完成入库' : (batch.status === 'undone' ? '已撤销' : '等待确认')));
+        $('#import_total').text(batch.total_count || 0);
+        $('#import_pending').text(batch.pending_count || 0);
+        $('#import_valid').text(batch.valid_count || 0);
+        $('#import_duplicate').text(batch.duplicate_count || 0);
+        $('#import_invalid').text(batch.invalid_count || 0);
+        $('#import_review_rows').html(items.map(function (item) {
+          return '<div class="import-review-row"><span>' + escapeHtml(item.line_number) + '</span><span><b>' + escapeHtml(item.chat_id || item.raw_value) + '</b><small>' + escapeHtml(item.error || '') + '</small></span><span>' + escapeHtml(item.chat_title || '—') + '</span><span class="import-result result-' + escapeHtml(item.status) + '">' + escapeHtml(importStatusLabel(item.status)) + '</span></div>';
+        }).join('') || '<p class="library-empty">没有可显示的导入记录</p>');
+        var ready = batch.status === 'ready' && Number(batch.valid_count || 0) > 0;
+        $('#confirm_batch_chat').prop('disabled', !ready).text(batch.status === 'imported' ? '已入库' : '确认添加');
+        $('#undo_import_batch').prop('hidden', batch.status !== 'imported');
+        if (batch.status === 'validating') {
+          importPollTimer = window.setTimeout(loadImportBatch, 1800);
+        }
+      }
+
+      function loadImportBatch() {
+        if (!importBatchId) { return; }
+        $.getJSON('api/channel_imports/' + importBatchId + '?limit=200', renderImportBatch).fail(function (xhr) {
+          showStatus((xhr.responseJSON || {}).message || '导入状态读取失败', 'error');
+        });
+      }
+
+      $('#batch_add_chat, #import_csv_open').on('click', function () {
+        resetImportCenter();
+        $('#import_kind').val('channels').trigger('change');
+        document.getElementById('batch_chat_dialog').showModal();
+      });
+      $('#import_kind').on('change', function () {
+        var invites = this.value === 'invites';
+        $('#download_csv_template').attr('href', 'api/import/template.csv?kind=' + this.value);
+        $('.import-defaults').prop('hidden', invites);
+        $('#import_format_help').text(invites ? 'CSV 字段：order 为顺序，invite_link 为私有邀请链接；title 可填名称，chat_id 留空即可。这里只加入待处理清单，不自动加群。' : '一行一个频道即可。需要分组、优先级或指定起点时，请使用 CSV 模板。');
+        $('#create_import_batch').text(invites ? '添加到手动加入清单' : '预览并检查');
+        $('#batch_chat_input').attr('placeholder', invites ? 'order,invite_link,title,chat_id\n1,https://t.me/+your_link,频道名称,' : 'chat_id,start_message_id,group_name,priority,download_filter\n@your_channel,0,学习,normal,');
+      });
+      $('#batch_chat_input').on('input', function () {
+        var count = ($(this).val() || '').split(/\r?\n/).filter(function (line) { return line.trim(); }).length;
+        $('#batch_chat_preview').text(count ? '已读取 ' + count + ' 行，尚未校验' : '尚未创建导入批次');
+      });
+      $('#batch_chat_file').on('change', function () {
+        var file = this.files && this.files[0];
+        if (!file) { return; }
+        importSourceName = file.name;
+        $('#batch_file_name').text(file.name);
+        var reader = new FileReader();
+        reader.onload = function () { $('#batch_chat_input').val(reader.result).trigger('input'); };
+        reader.readAsText(file);
+      });
+      $('#import_compose').on('submit', function (event) {
+        event.preventDefault();
+        $('#create_import_batch').trigger('click');
+      });
+      $('#create_import_batch').on('click', function () {
+        var content = $('#batch_chat_input').val() || '';
+        if (!content.trim()) { showStatus('请先粘贴频道列表或选择 CSV', 'error'); return; }
+        $(this).prop('disabled', true).text('正在解析…');
+        $.ajax({
+          url: $('#import_kind').val() === 'invites' ? 'api/batch/import' : 'api/channel_imports', type: 'post', dataType: 'json',
+          contentType: 'application/json; charset=utf-8',
+          data: JSON.stringify({ content: content, source_name: importSourceName, defaults: { group_name: $('#batch_default_group').val(), priority: $('#batch_default_priority').val(), start_message_id: $('#batch_default_start').val() } }),
+          success: function (result) {
+            if ($('#import_kind').val() === 'invites') {
+              document.getElementById('batch_chat_dialog').close();
+              showStatus(result.message, 'success');
+              activateView('imports');
+              window.dispatchEvent(new CustomEvent('tmd:viewchange', {detail: 'imports'}));
+              return;
+            }
+            importBatchId = result.batch.id;
+            $('#import_compose').prop('hidden', true);
+            $('#import_review').prop('hidden', false);
+            showStatus(result.message, 'success');
+            loadImportBatch();
+          },
+          error: function (xhr) { showStatus((xhr.responseJSON || {}).message || '导入批次创建失败', 'error'); },
+          complete: function () { $('#create_import_batch').prop('disabled', false).text($('#import_kind').val() === 'invites' ? '添加到手动加入清单' : '预览并检查'); }
+        });
+      });
+      $('#confirm_batch_chat').on('click', function () {
+        if (!importBatchId) { return; }
+        $.post('api/channel_imports/' + importBatchId + '/confirm').done(function (result) {
+          showStatus(result.message, 'success'); loadImportBatch(); loadChannelLibrary(true); reloadChannelTable(false);
+        }).fail(function (xhr) { showStatus((xhr.responseJSON || {}).message || '确认导入失败', 'error'); });
+      });
+      $('#undo_import_batch').on('click', function () {
+        if (!importBatchId) { return; }
+        $.post('api/channel_imports/' + importBatchId + '/undo').done(function (result) {
+          showStatus(result.message, 'success'); loadImportBatch(); loadChannelLibrary(true); reloadChannelTable(false);
+        }).fail(function (xhr) { showStatus((xhr.responseJSON || {}).message || '撤销失败', 'error'); });
+      });
+      $('#new_import_batch').on('click', resetImportCenter);
+      $('#close_batch_chat, #cancel_batch_chat').on('click', function () {
+        window.clearTimeout(importPollTimer);
+        document.getElementById('batch_chat_dialog').close();
+      });
+
+      $("#proxy_enabled").on('change', function () {
+        $("#proxy_fields").toggleClass('is-disabled', !this.checked);
+        $("#proxy_fields :input").prop('disabled', !this.checked);
+      });
+
+      $('#config_form').on('input change', ':input', function () {
+        if(this.id==='telegram_login_value')return;
+        if (configLoaded) {
+          configDirty = true;
+          $('#config_form').addClass('has-changes');
+          setConfigStatus('修改尚未保存', 'loading');
+        }
+      });
+
+      window.addEventListener('beforeunload', function (event) {
+        if (!configDirty) {
+          return;
+        }
+        event.preventDefault();
+        event.returnValue = '';
+      });
+
+      $.getJSON('api/storage/capabilities').done(function (result) {
+        $('#choose_storage').prop('hidden', !result.native_picker);
+        $('#storage_help').text(result.native_picker ? '下载到此 Mac 的任意文件夹，也可以选择已挂载的共享目录。' : '填写下载器所在设备的保存路径；浏览器所在电脑的文件夹不会自动传到远程设备。');
+      });
+      $('#choose_storage').on('click', function () {
+        var button = $(this); button.prop('disabled', true).text('选择窗口已打开…');
+        $('#storage_test_result').removeClass('is-success is-error').text('请在 Mac 窗口中选择文件夹；取消不会更改设置。');
+        $.ajax({url:'api/storage/choose', type:'post', data:'{}', contentType:'application/json', dataType:'json',
+          headers:{'X-TMD-Local-Picker':'1'}, timeout:125000,
+          success:function(result){
+            if(result.cancelled){$('#storage_test_result').text('已取消，原目录保留。');return;}
+            $('#save_path').val(result.path).trigger('input');
+            $('#storage_test_result').text('已选择文件夹。检查可写后，保存设置即可。');
+          },
+          error:function(xhr){$('#storage_test_result').addClass('is-error').text((xhr.responseJSON || {}).message || '未能选择文件夹，请重试或手动填写。');},
+          complete:function(){button.prop('disabled',false).text('选择 Mac 文件夹').trigger('focus');}
+        });
+      });
+
+      $('#save_path').on('input',function(){$('#storage_test_result').removeClass('is-error is-success').text('位置已更改，建议检查文件夹是否可写。');});
+      $('#test_storage').on('click', function () {
+        var button = $(this);
+        var resultNode = $('#storage_test_result');
+        button.prop('disabled', true).text('检测中…');
+        resultNode.removeClass('is-success is-error').text('正在检查目录…');
+        $.ajax({
+          url: 'api/test_storage',
+          type: 'post',
+          data: JSON.stringify({ path: $('#save_path').val() }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          timeout: 7000,
+          success: function (result) {
+            resultNode.addClass('is-success').text(result.message + ' · 剩余 ' + formatBytes(result.free));
+            showStatus(result.message + '，可用空间 ' + formatBytes(result.free), 'success', { title: '目录写入正常' });
+          },
+          error: function (xhr, textStatus) {
+            var result = xhr.responseJSON || {};
+            var message = textStatus === 'timeout' ? '存储响应超时，请检查目录后重试' : (result.message || '目录检测失败');
+            resultNode.addClass('is-error').text(message);
+            showStatus(message + '。确认目录存在且当前用户有写入权限；共享目录请先挂载。', 'error', { title: '目录写入检测失败' });
+          },
+          complete: function () {
+            button.prop('disabled', false).text('检查文件夹');
+            updateSystemStatus();
+          }
+        });
+      });
+
+      $("#config_form").on('submit', function (event) {
+        event.preventDefault();
+        $('#config_form [aria-invalid]').removeAttr('aria-invalid');
+        $('.field-error').remove();
+        var invalid=[];
+        function fieldError(id,message){var input=$('#'+id);input.attr('aria-invalid','true').attr('aria-errormessage',id+'_error');input.closest('.field-control').append($('<small class="field-error" role="alert"></small>').attr('id',id+'_error').text(message));invalid.push(input[0]);}
+        var apiID=String($('#api_id').val()||'').trim(),apiHash=String($('#api_hash').val()||'').trim();
+        if(!apiID || !/^\d+$/.test(apiID)||Number(apiID)<1) fieldError('api_id','请输入官方页面提供的正整数 API ID。');
+        if((!apiHash && !savedSecretStatus.api_hash) || (apiHash && !/^[a-fA-F0-9]{32}$/.test(apiHash))) fieldError('api_hash','请从 Telegram 官方页面复制完整的 32 位 API Hash。');
+        if(!String($('#save_path').val()||'').trim()) fieldError('save_path','请选择一个文件夹，或填写保存目录。');
+        if(invalid.length){setConfigStatus('请检查 '+invalid.length+' 个填写项','error');invalid[0].focus();return;}
+        if (!nodeImportReady()) return;
+        if(wizardStep===1 && testedNetwork!==networkCandidate()){$('#wizard_hint').text('请先测试当前网络，成功后再继续。');return;}
+        var button = $("#save_config");
+        button.prop('disabled', true).text('保存中…');
+        setConfigStatus('正在保存设置…', 'loading');
+        $.ajax({
+          url: 'api/config',
+          type: 'post',
+          data: JSON.stringify(collectConfig()),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            populateConfig(result.config || {});
+            configDirty = false;
+            if(wizardStep===1)showWizard(2);
+            refreshSetup();
+            setConfigStatus(result.message || '配置已保存', 'success');
+            showStatus(result.message || '设置已经保存', 'success', { title: '配置已保存' });
+          },
+          error: function (xhr) {
+            var response = xhr.responseJSON || {};
+            var message = response.message || '保存失败，请检查输入';
+            setConfigStatus(message, 'error');
+            showStatus(message + '。检查输入后重新保存。', 'error', { title: '配置保存失败' });
+          },
+          complete: function () {
+            button.prop('disabled', false).text('保存设置');
+          }
+        });
+      });
+
+      renderStateButton("{{ download_state }}");
+
+      $.ajax({
+        url: "get_app_version",
+        type: "get",
+        dataType: "text",
+        success: function (result) {
+          $("#app_version").text(result);
+        }
+      });
+
+      download_state_change = function (e) {
+        var button = $(e);
+        var requestedAction = e.dataset.value;
+        var isPausing = requestedAction === 'pause_all';
+        button.prop('disabled', true).addClass('is-loading');
+        button.find('span:last').text(isPausing ? '正在暂停全部…' : '正在开始全部…');
+        showStatus(
+          isPausing ? '正在保存当前进度并挂起活动文件' : '正在检查存储并恢复所有频道调度',
+          'info',
+          { title: isPausing ? '正在暂停全部下载' : '正在开始全部下载', duration: 0 }
+        );
+        $.ajax({
+          url: 'api/channel_state',
+          type: "post",
+          data: JSON.stringify({ all: true, action: isPausing ? 'pause' : 'start' }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: "json",
+          success: function (result) {
+            globalDownloadState = isPausing ? 'paused' : 'downloading';
+            showStatus(
+              result.message || (isPausing ? '全部频道已暂停，当前进度已保留' : '全部频道已开始，正在进入公平调度'),
+              'success',
+              { title: isPausing ? '已暂停全部下载' : '已开始全部下载' }
+            );
+            lastQueueSignature = '';
+            updateSystemStatus();
+            update_download_list();
+            reloadChannelTable(false);
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            showStatus((result.message || '状态切换失败，请重试。'), 'error', { title: '全局状态切换失败' });
+            updateSystemStatus();
+          },
+          complete: function () {
+            button.removeClass('is-loading');
+            updateSystemStatus();
+          }
+        });
+      };
+
+      table.render({
+        elem: '#channel_list',
+        id: 'channel_list',
+        url: 'api/channels',
+        method: 'get',
+        title: '频道队列',
+        height: 560,
+        page: true,
+        limit: 50,
+        limits: [20, 50, 100, 200],
+        text: { none: '没有符合条件的频道' },
+        cols: [[
+          { type: 'checkbox', fixed: 'left', width: 46 },
+          { field: 'chat_title', title: '频道', minWidth: 190, templet: function (d) { return '<div class="channel-cell"><b title="' + escapeHtml(d.chat_title || d.chat) + '">' + escapeHtml(d.chat_title || d.chat) + '</b><small>' + escapeHtml(d.chat) + '</small></div>'; } },
+          { field: 'status', title: '状态', width: 180, templet: channelStateMarkup },
+          { field: 'pending', title: '任务构成', width: 190, templet: channelTaskSummary },
+          { field: 'channel_progress', title: '总进度', width: 108, align: 'right', templet: channelProgressMarkup },
+          { field: 'total_size', title: '数据量', width: 92, align: 'right' },
+          { field: 'last_activity', title: '最后活动', width: 142, templet: function (d) { return escapeHtml(formatCompletedAt(d.last_activity) || '尚无任务'); } },
+          { title: '操作', width: 132, align: 'center', templet: channelActions }
+        ]],
+        done: function (res, curr) {
+          var records = res.data || [];
+          channelPage = curr || 1;
+          channelTotal = res.count || 0;
+          setEmptyView('queue', channelTotal);
+          channelOrderSignature = JSON.stringify(records.map(function (record) { return String(record.chat); }));
+          channelDataSignature = channelRecordsSignature(records);
+          channelTableReady = true;
+          $('#queue_result_count').text((res.count || 0) + ' 个频道');
+          channelRecords = {};
+          records.forEach(function (record) { channelRecords[String(record.chat)] = record; });
+          records.forEach(function (record, index) {
+            var progress = Math.max(0, Math.min(Number(record.channel_progress || 0), 100));
+            $('.layui-table-view[lay-id="channel_list"] .layui-table-body tr[data-index="' + index + '"]')
+              .addClass('channel-progress-row')
+              .css('--channel-progress', progress + '%');
+          });
+          renderMobileChannels(records);
+          applyChannelStartAvailability();
+          $('#bulk_channel_actions').prop('hidden', true);
+          element.render();
+        }
+      });
+
+      table.render({
+        elem: '#download_list',
+        id: 'download_list',
+        data: download_list_table_data,
+        title: '正在下载的文件',
+        height: 520,
+        limit: 200,
+        text: { none: '当前没有正在传输的文件' },
+        cols: [[
+          { field: 'queue_position', title: '队列', width: 72, align: 'center', templet: function (d) { return d.queue_position ? '#' + escapeHtml(d.queue_position) : '—'; } },
+          { field: 'chat_title', title: '频道', width: 190, templet: function (d) { return '<span class="channel-name" title="' + escapeHtml(d.chat_title || d.chat) + '">' + escapeHtml(d.chat_title || d.chat) + '</span>'; } },
+          { field: 'filename', title: '文件', align: 'left', minWidth: 300, templet: function (d) { return '<div class="task-file-cell"><span class="media-badge">' + escapeHtml(mediaTypeLabel(d.media_type)) + '</span><span><b title="' + escapeHtml(d.filename) + '">' + escapeHtml(d.filename) + '</b><small>消息 #' + escapeHtml(d.id) + '</small></span></div>'; } },
+          { field: 'total_size', title: '大小', width: 110, align: 'right' },
+          { field: 'status', title: '状态', width: 115, templet: function (d) { return '<span class="status-badge status-' + escapeHtml(d.status) + '">' + escapeHtml(taskStatusLabel(d.status)) + '</span>'; } },
+          { field: 'download_progress', title: '进度', align: 'left', minWidth: 220, templet: function (d) { var progress = Math.max(0, Math.min(Number(d.download_progress || 0), 100)); var detail = (d.download_speed || '等待中') + (d.eta && d.eta !== '—' && d.eta !== '等待继续' ? ' · ' + d.eta : ''); return '<div class="compact-progress"><span style="width:' + progress + '%"></span><b>' + progress + '%</b><small>' + escapeHtml(detail) + '</small></div>'; } },
+          { title: '操作', width: 130, fixed: 'right', align: 'center', templet: queueActions }
+        ]],
+        done: function (res) { setEmptyView('active',(res.data||[]).length); element.render(); }
+      });
+
+      table.render({
+        elem: '#already_download_list',
+        id: 'already_download_list',
+        url: 'api/download_history',
+        method: 'get',
+        title: '下载记录',
+        height: 520,
+        page: true,
+        limit: 50,
+        limits: [20, 50, 100, 200],
+        text: { none: '暂无完成记录' },
+        cols: [[
+          { field: 'chat_title', title: '频道', width: 190, templet: function (d) { return escapeHtml(d.chat_title || d.chat); } },
+          { field: 'filename', title: '文件', align: 'left', minWidth: 300, templet: function (d) { return '<div class="task-file-cell"><span class="media-badge">' + escapeHtml(mediaTypeLabel(d.media_type)) + '</span><span><b title="' + escapeHtml(d.filename) + '">' + escapeHtml(d.filename) + '</b><small>消息 #' + escapeHtml(d.id) + '</small></span></div>'; } },
+          { field: 'total_size', title: '大小', width: 120, align: 'center' },
+          { field: 'completed_at', title: '完成时间', width: 190, templet: function (d) { return escapeHtml(formatCompletedAt(d.completed_at)); } },
+          { field: 'save_path', title: '保存路径', align: 'left', minWidth: 320, templet: function (d) { return '<span class="path-cell" title="' + escapeHtml(d.save_path) + '">' + escapeHtml(d.save_path) + '</span>'; } },
+          { title: '操作', width: 142, fixed: 'right', align: 'center', templet: downloadLocationActions }
+        ]],
+        done: function (res) {
+          $('#history_result_count').text((res.count || 0) + ' 条记录');
+          setEmptyView('history',res.count||0);
+          element.render();
+        }
+      });
+
+      table.render({
+        elem: '#failed_download_list',
+        id: 'failed_download_list',
+        url: 'api/download_tasks?status=failed',
+        method: 'get',
+        title: '失败任务',
+        height: 520,
+        page: true,
+        limit: 50,
+        limits: [20, 50, 100, 200],
+        text: { none: '没有失败任务' },
+        cols: [[
+          { field: 'chat_title', title: '频道', width: 190, templet: function (d) { return escapeHtml(d.chat_title || d.chat); } },
+          { field: 'filename', title: '文件', align: 'left', minWidth: 280, templet: function (d) { return '<div class="task-file-cell"><span class="media-badge">' + escapeHtml(mediaTypeLabel(d.media_type)) + '</span><span><b title="' + escapeHtml(d.filename) + '">' + escapeHtml(d.filename) + '</b><small>消息 #' + escapeHtml(d.id) + '</small></span></div>'; } },
+          { field: 'attempts', title: '尝试', width: 90, align: 'center', templet: function (d) { return escapeHtml(d.attempts + '/' + d.max_attempts); } },
+          { field: 'error', title: '失败原因', align: 'left', minWidth: 300, templet: function (d) { return '<span class="task-error" title="' + escapeHtml(d.error) + '">' + escapeHtml(d.error || '下载失败') + '</span>'; } },
+          { field: 'updated_at', title: '最后更新', width: 190, templet: function (d) { return escapeHtml(formatCompletedAt(d.updated_at)); } },
+          { title: '操作', width: 130, fixed: 'right', align: 'center', templet: function (d) { return '<span class="task-actions">' + messageLink(d, '原消息') + '<button class="table-retry-button" lay-event="retry" title="重试任务" aria-label="重试任务">↻</button></span>'; } }
+        ]],
+        done: function (res) {setEmptyView('failed',res.count||0);}
+      });
+
+      table.render({
+        elem: '#channel_file_list',
+        id: 'channel_file_list',
+        data: [],
+        title: '频道文件',
+        height: 470,
+        page: true,
+        limit: 50,
+        limits: [20, 50, 100, 200],
+        text: { none: '该频道暂无文件记录' },
+        cols: [[
+          { field: 'filename', title: '文件', minWidth: 280, templet: function (d) { return '<div class="task-file-cell"><span class="media-badge">' + escapeHtml(mediaTypeLabel(d.media_type)) + '</span><span><b title="' + escapeHtml(d.filename) + '">' + escapeHtml(d.filename) + '</b><small>消息 #' + escapeHtml(d.id) + '</small></span></div>'; } },
+          { field: 'status', title: '状态', width: 110, templet: function (d) { return '<span class="status-badge status-' + escapeHtml(d.status) + '">' + escapeHtml(taskStatusLabel(d.status)) + '</span>'; } },
+          { field: 'total_size', title: '大小', width: 110, align: 'right' },
+          { field: 'attempts', title: '尝试', width: 82, align: 'center', templet: function (d) { return d.attempts + '/' + d.max_attempts; } },
+          { field: 'updated_at', title: '更新时间', width: 180, templet: function (d) { return escapeHtml(formatCompletedAt(d.updated_at || d.completed_at)); } },
+          { title: '原消息', width: 88, fixed: 'right', align: 'center', templet: function (d) { return messageLink(d, '打开') || '—'; } }
+        ]],
+        done: function (res, curr) {
+          channelFilePage = curr || 1;
+          channelFileTotal = res.count || 0;
+          renderMobileChannelFiles(res.data || []);
+          updateMobileDetailPagination();
+        }
+      });
+
+      function reloadChannelTable(resetPage) {
+        channelDataSignature = '';
+        table.reload('channel_list', {
+          where: {
+            search: ($('#queue_search').val() || '').trim(),
+            status: queueStatusFilter || $('#queue_status').val() || ''
+          },
+          page: resetPage === false ? undefined : { curr: 1 }
+        });
+      }
+
+      function patchChannelRecord(record, index) {
+        channelRecords[String(record.chat)] = record;
+        if (table.cache.channel_list && table.cache.channel_list[index]) {
+          table.cache.channel_list[index] = record;
+        }
+        var row = $('.layui-table-view[lay-id="channel_list"] .layui-table-main tr[data-index="' + index + '"]');
+        if (row.length) {
+          row.addClass('channel-progress-row').attr('data-chat', record.chat).css('--channel-progress', Math.max(0, Math.min(Number(record.channel_progress || 0), 100)) + '%');
+          row.find('td[data-field="status"] .layui-table-cell').html(channelStateMarkup(record));
+          row.find('td[data-field="pending"] .layui-table-cell').html(channelTaskSummary(record));
+          row.find('td[data-field="channel_progress"] .layui-table-cell').html(channelProgressMarkup(record));
+          row.find('td[data-field="total_size"] .layui-table-cell').text(record.total_size || '0 B');
+          row.find('td[data-field="last_activity"] .layui-table-cell').text(formatCompletedAt(record.last_activity) || '尚无任务');
+          row.find('td').last().find('.layui-table-cell').html(channelActions(record));
+        }
+        var mobileRow = $('#mobile_channel_list .mobile-channel-row[data-chat="' + String(record.chat).replace(/"/g, '\\"') + '"]');
+        if (mobileRow.length) {
+          mobileRow.replaceWith(mobileChannelMarkup(record));
+        }
+      }
+
+      function patchChannelRows(records) {
+        records.forEach(patchChannelRecord);
+        applyChannelStartAvailability();
+        element.render();
+      }
+
+      function patchChannelById(record) {
+        var order = [];
+        try { order = JSON.parse(channelOrderSignature || '[]'); } catch (error) { order = []; }
+        var index = order.indexOf(String(record.chat));
+        if (index !== -1) {
+          patchChannelRecord(record, index);
+          applyChannelStartAvailability();
+          element.render();
+        }
+      }
+
+      function refreshChannelRows() {
+        if (currentView !== 'queue' || !channelTableReady || channelRefreshPending || Object.keys(channelActionPending).length || document.hidden) {
+          return;
+        }
+        var requestMutationVersion = channelMutationVersion;
+        channelRefreshPending = true;
+        $.ajax({
+          url: 'api/channels',
+          type: 'get',
+          dataType: 'json',
+          cache: false,
+          data: {
+            page: channelPage,
+            limit: 50,
+            search: ($('#queue_search').val() || '').trim(),
+            status: queueStatusFilter || $('#queue_status').val() || ''
+          },
+          success: function (result) {
+            if (requestMutationVersion !== channelMutationVersion) {
+              return;
+            }
+            var records = result.data || [];
+            var visibleOrder = [];
+            try { visibleOrder = JSON.parse(channelOrderSignature || '[]'); } catch (error) { visibleOrder = []; }
+            var recordsByChat = {};
+            records.forEach(function (record) { recordsByChat[String(record.chat)] = record; });
+            var sameVisibleChannels = visibleOrder.length === records.length && visibleOrder.every(function (chatId) {
+              return Object.prototype.hasOwnProperty.call(recordsByChat, chatId);
+            });
+            if ((result.count || 0) !== channelTotal || !sameVisibleChannels) {
+              reloadChannelTable(false);
+              return;
+            }
+            // The API sorts by live activity, so rows can change order every few
+            // seconds while downloads run. Keep the visible order stable and
+            // patch cells in place; a full Layui reload clears the whole table
+            // and shows a spinner, which makes the console appear to refresh.
+            var stableRecords = visibleOrder.map(function (chatId) { return recordsByChat[chatId]; });
+            var dataSignature = channelRecordsSignature(stableRecords);
+            if (dataSignature !== channelDataSignature) {
+              patchChannelRows(stableRecords);
+              channelDataSignature = dataSignature;
+            }
+          },
+          complete: function () {
+            channelRefreshPending = false;
+          }
+        });
+      }
+
+      $('#queue_search').on('input', function () {
+        window.clearTimeout(reloadChannelTable.searchTimer);
+        reloadChannelTable.searchTimer = window.setTimeout(function () { reloadChannelTable(); }, 280);
+      });
+      $('#queue_status').on('change', function () {
+        queueStatusFilter = $(this).val() || '';
+        reloadChannelTable();
+      });
+      $('#clear_queue_filters').on('click', function () {
+        queueStatusFilter = '';
+        $('#queue_search, #queue_status').val('');
+        reloadChannelTable();
+      });
+
+      function update_download_list() {
+        if (activeRefreshPending || document.hidden) {
+          return;
+        }
+        activeRefreshPending = true;
+        $.ajax({
+          url: "get_download_list?already_down=false",
+          type: "get",
+          dataType: "json",
+          success: function (result) {
+            var records = (result || []).filter(function (record) { return ['downloading', 'suspended'].indexOf(record.status) !== -1; });
+            var signature = JSON.stringify(records.map(function (record) {
+              return [record.chat, record.id, record.status, record.download_progress, record.downloaded_size_bytes, record.download_speed, record.eta, record.filename];
+            }));
+            if (signature === lastQueueSignature) {
+              return;
+            }
+            lastQueueSignature = signature;
+            download_list_table_data = records;
+            table.reload('download_list', { data: records });
+            renderMobileRecords('#mobile_active_list', records, false);
+            $('#active_result_count').text(records.length + ' 个文件');
+            element.render();
+          },
+          complete: function () { activeRefreshPending = false; }
+        });
+      }
+
+      function setChannelState(chatIds, action, done, trigger) {
+        var button = trigger ? $(trigger) : $();
+        var originalLabel = button.text();
+        var previousRecords = {};
+        channelMutationVersion += 1;
+        var channelNames = chatIds.map(function (chatId) {
+          var record = channelRecords[String(chatId)];
+          return record ? (record.chat_title || record.chat) : chatId;
+        });
+        var channelDescription = channelNames.length === 1 ? '“' + channelNames[0] + '”' : channelNames.length + ' 个频道';
+        chatIds.forEach(function (chatId) {
+          var key = String(chatId);
+          var record = channelRecords[key];
+          if (!record) { return; }
+          previousRecords[key] = $.extend({}, record);
+          channelActionPending[key] = true;
+          var pendingRecord = $.extend({}, record, {
+            display_status: action === 'pause' ? 'suspended' : 'queued',
+            state_reason: action === 'pause' ? '正在保存进度并暂停…' : '启动请求已提交，正在进入调度…',
+            channel_action: action,
+            action_pending: true
+          });
+          patchChannelById(pendingRecord);
+        });
+        if (button.length) {
+          button.prop('disabled', true).text(action === 'pause' ? '正在暂停…' : '正在开始…');
+        }
+        showStatus(
+          action === 'pause' ? '正在保留 ' + channelDescription + ' 的当前进度' : channelDescription + ' 正在进入调度队列',
+          'info',
+          { title: action === 'pause' ? '正在暂停频道' : '正在开始频道', duration: 0 }
+        );
+        $.ajax({
+          url: 'api/channel_state',
+          type: 'post',
+          data: JSON.stringify({ chat_ids: chatIds, action: action }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            chatIds.forEach(function (chatId) {
+              var key = String(chatId);
+              var record = channelRecords[key] || previousRecords[key];
+              if (!record) { return; }
+              var started = action !== 'pause';
+              patchChannelById($.extend({}, record, {
+                paused: !started,
+                global_paused: false,
+                channel_running: started,
+                channel_action: started ? 'pause' : 'start',
+                display_status: started ? (Number(record.downloading || 0) > 0 ? 'downloading' : 'queued') : 'paused',
+                status: started ? (Number(record.downloading || 0) > 0 ? 'downloading' : 'queued') : 'paused',
+                state_reason: started
+                  ? (Number(record.downloading || 0) > 0 ? '频道已开始，正在恢复文件传输' : '频道已开始，等待开始下载')
+                  : '频道已暂停，当前下载进度已保留',
+                action_pending: false
+              }));
+            });
+            showStatus(
+              result.message || '频道状态已更新',
+              'success',
+              { title: action === 'pause' ? '频道已暂停' : '频道已开始' }
+            );
+            channelDataSignature = '';
+            refreshChannelRows();
+            updateSystemStatus();
+            if (done) { done(true); }
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            Object.keys(previousRecords).forEach(function (key) {
+              patchChannelById(previousRecords[key]);
+            });
+            showStatus(
+              (result.message || '频道状态更新失败') + (xhr.status === 409 ? '。请先恢复保存目录，再重新开始。' : '。请稍后重试。'),
+              'error',
+              { title: action === 'pause' ? '暂停频道失败' : '开始频道失败' }
+            );
+            if (done) { done(false); }
+          },
+          complete: function () {
+            chatIds.forEach(function (chatId) { delete channelActionPending[String(chatId)]; });
+            if (button.length && $.contains(document, button[0])) {
+              button.prop('disabled', false).text(originalLabel);
+            }
+            channelDataSignature = '';
+            refreshChannelRows();
+          }
+        });
+      }
+
+      function updateChannelDetailSummary(record) {
+        $('#channel_detail_summary').html(
+          '<span><b>' + escapeHtml(record.pending || 0) + '</b>待处理</span>' +
+          '<span><b>' + escapeHtml(record.downloading || 0) + '</b>下载中</span>' +
+          '<span><b>' + escapeHtml(record.completed || 0) + '</b>已完成</span>' +
+          '<span><b class="count-error">' + escapeHtml(record.failed || 0) + '</b>异常</span>' +
+          '<span><b>' + escapeHtml(record.total_size || '0 B') + '</b>数据量</span>'
+        );
+      }
+
+      function renderChannelStateTimeline(record, events) {
+        var nextAction = record.next_action_at
+          ? ' · 下次动作 ' + formatCompletedAt(record.next_action_at)
+          : '';
+        $('#channel_state_current').html(
+          '<span class="status-badge status-' + escapeHtml(record.status) + '">' + escapeHtml(channelStatusLabel(record.status)) + '</span>' +
+          '<div><b>' + escapeHtml(record.state_reason || '等待状态更新') + '</b><small>状态版本 ' + escapeHtml(record.state_version || 1) + ' · 变更于 ' + escapeHtml(formatCompletedAt(record.state_changed_at) || '刚刚') + escapeHtml(nextAction) + '</small></div>'
+        );
+        if (!events || !events.length) {
+          $('#channel_state_timeline').html('<span class="state-event-empty">暂无状态转换记录</span>');
+          return;
+        }
+        $('#channel_state_timeline').html(events.slice(0, 8).map(function (event) {
+          var transition = event.from_state
+            ? channelStatusLabel(event.from_state) + ' → ' + channelStatusLabel(event.to_state)
+            : channelStatusLabel(event.to_state);
+          return '<article class="state-event"><i aria-hidden="true"></i><div><b>' + escapeHtml(transition) + '</b><span>' + escapeHtml(event.reason || '') + '</span></div><time>' + escapeHtml(formatCompletedAt(event.created_at)) + '</time></article>';
+        }).join(''));
+      }
+
+      function loadChannelStateTimeline(record) {
+        $('#channel_state_timeline').html('<span class="state-event-empty">读取状态转换记录…</span>');
+        renderChannelStateTimeline(record, []);
+        $.ajax({
+          url: 'api/channel_state_history',
+          type: 'get',
+          dataType: 'json',
+          data: { chat_id: record.chat, limit: 8 },
+          success: function (result) {
+            renderChannelStateTimeline(record, result.data || []);
+          },
+          error: function () {
+            $('#channel_state_timeline').html('<span class="state-event-empty is-error">状态记录读取失败</span>');
+          }
+        });
+      }
+
+      function openChannelDetail(record) {
+        if (!record) { return; }
+        currentChannel = $.extend({}, record);
+        channelFilePage = 1;
+        $('#channel_detail_title').text(record.chat_title || record.chat);
+        $('#channel_detail_id').text(record.chat);
+        var channelAction = record.channel_action || (record.paused ? 'start' : 'pause');
+        $('#channel_detail_state').prop('hidden', (record.display_status || record.status) === 'completed');
+        if ((record.display_status || record.status) !== 'completed') {
+          $('#channel_detail_state').text(channelAction === 'start' ? '开始下载' : '暂停下载').attr('data-action', channelAction);
+        }
+        updateChannelDetailSummary(record);
+        loadChannelStateTimeline(record);
+        table.reload('channel_file_list', {
+          url: 'api/channel_files',
+          where: { chat_id: record.chat },
+          page: { curr: 1 }
+        });
+        document.getElementById('channel_detail_dialog').showModal();
+      }
+
+      table.on('tool(channel_list)', function (object) {
+        if (object.event === 'detail') {
+          openChannelDetail(channelRecords[String(object.data.chat)] || object.data);
+        } else if (object.event === 'pause' || object.event === 'start') {
+          setChannelState([object.data.chat], object.event, null, object.tr.find('.channel-state-button'));
+        }
+      });
+
+      function isCompletedChannel(record) {
+        return (record.display_status || record.status) === 'completed';
+      }
+      // Completed channels are excluded from 暂停/开始 (there is nothing to
+      // pause) but ARE the whole point of 检查更新, so selection tracks both
+      // sets instead of filtering completed rows away up front.
+      function selectedChannelSets() {
+        var all = table.checkStatus('channel_list').data || [];
+        return {
+          all: all,
+          actionable: all.filter(function (record) { return !isCompletedChannel(record); }),
+          completed: all.filter(isCompletedChannel)
+        };
+      }
+
+      table.on('checkbox(channel_list)', function () {
+        var sets = selectedChannelSets();
+        $('#selected_channel_count').text('已选 ' + sets.all.length + ' 个');
+        $('#bulk_channel_actions').prop('hidden', !sets.all.length);
+        $('.bulk-channel-state').prop('disabled', !sets.actionable.length);
+        $('#bulk_channel_refresh')
+          .prop('disabled', !sets.completed.length)
+          .text(sets.completed.length ? '检查更新 (' + sets.completed.length + ')' : '检查更新');
+      });
+
+      $('.bulk-channel-state').on('click', function () {
+        var selected = selectedChannelSets().actionable;
+        if (!selected.length) { return; }
+        setChannelState(selected.map(function (record) { return record.chat; }), $(this).attr('data-action'));
+      });
+
+      $('#bulk_channel_refresh').on('click', function () {
+        var completed = selectedChannelSets().completed;
+        if (!completed.length) { return; }
+        var button = $(this);
+        var label = button.text();
+        var chatIds = completed.map(function (record) { return record.chat; });
+        button.prop('disabled', true).text('正在检查…');
+        showStatus(chatIds.length + ' 个频道正在检查更新', 'info', { title: '检查更新', duration: 0 });
+        $.ajax({
+          url: 'api/channel_library/refresh',
+          type: 'post',
+          data: JSON.stringify({ chat_ids: chatIds }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            showStatus((result && result.message) || '已提交检查更新', (result && result.ok) ? 'success' : 'info', { title: '检查更新' });
+            refreshChannelRows();
+          },
+          error: function () {
+            showStatus('检查更新失败，请重试', 'error', { title: '检查更新' });
+          },
+          complete: function () {
+            button.prop('disabled', false).text(label);
+          }
+        });
+      });
+
+      $('#mobile_channel_list').on('click', '.mobile-channel-detail', function () {
+        openChannelDetail(channelRecords[String($(this).attr('data-chat'))]);
+      }).on('click', '.mobile-channel-state', function () {
+        setChannelState([$(this).attr('data-chat')], $(this).attr('data-action'), null, this);
+      });
+
+      $('#channel_detail_state').on('click', function () {
+        if (!currentChannel) { return; }
+        var action = $(this).attr('data-action');
+        setChannelState([currentChannel.chat], action, function (ok) {
+          if (!ok) { return; }
+          currentChannel.paused = action === 'pause';
+          currentChannel.status = currentChannel.paused ? 'paused' : (currentChannel.pending ? 'queued' : 'ready');
+          currentChannel.state_reason = currentChannel.paused ? '频道已暂停，不会领取新任务' : (currentChannel.pending ? '文件等待开始下载' : '等待下一次频道扫描');
+          $('#channel_detail_state').text(currentChannel.paused ? '开始下载' : '暂停下载').attr('data-action', currentChannel.paused ? 'start' : 'pause');
+          loadChannelStateTimeline(currentChannel);
+        });
+      });
+
+      $('#close_channel_detail').on('click', function () {
+        document.getElementById('channel_detail_dialog').close();
+      });
+
+      $('#mobile_detail_previous').on('click', function () {
+        if (channelFilePage > 1) { loadMobileChannelFiles(channelFilePage - 1); }
+      });
+      $('#mobile_detail_next').on('click', function () {
+        if (channelFilePage * 50 < channelFileTotal) { loadMobileChannelFiles(channelFilePage + 1); }
+      });
+
+      $('#channel_detail_dialog, #batch_chat_dialog, #channel_editor_dialog').on('click', function (event) {
+        if (event.target === this) { this.close(); }
+      });
+
+      function update_download_status() {
+        $.ajax({
+          url: "get_download_status",
+          type: "get",
+          dataType: "json",
+          success: function (result) {
+            $("#download_speed_title").text(result.download_speed);
+          }
+        });
+      }
+
+      function update_mobile_download_history() {
+        $.ajax({
+          url: "api/download_history?page=1&limit=200",
+          type: "get",
+          dataType: "json",
+          success: function (result) {
+            $('#history_result_count').text((result.count || 0) + ' 条记录');
+            renderMobileRecords('#mobile_history_list', result.data || [], true);
+          }
+        });
+      }
+
+      $(document).on('click', '.open-download-folder', function () {
+        var button = $(this);
+        var originalLabel = button.text();
+        button.prop('disabled', true).text('打开中…');
+        $.ajax({
+          url: 'api/open_download_folder',
+          type: 'post',
+          data: JSON.stringify({ path: button.attr('data-path') || '' }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            showStatus(result.folder || result.message, 'success', { title: '已打开下载目录' });
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            showStatus((result.message || '无法打开下载目录') + '。请确认文件仍在保存目录中。', 'error', { title: '打开目录失败' });
+          },
+          complete: function () {
+            if ($.contains(document, button[0])) {
+              button.prop('disabled', false).text(originalLabel);
+            }
+          }
+        });
+      });
+
+      function update_mobile_failed_tasks() {
+        $.ajax({
+          url: "api/download_tasks?status=failed&page=1&limit=200",
+          type: "get",
+          dataType: "json",
+          success: function (result) {
+            renderFailedMobileRecords(result.data || []);
+          }
+        });
+      }
+
+      function retryTasks(payload) {
+        $.ajax({
+          url: 'api/retry_tasks',
+          type: 'post',
+          data: JSON.stringify(payload),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            showStatus(result.message || '已加入重试队列', 'success');
+            update_failed_tasks();
+            updateSystemStatus();
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            showStatus(result.message || '重试请求失败', 'error');
+          }
+        });
+      }
+
+      table.on('tool(failed_download_list)', function (object) {
+        if (object.event == 'retry') {
+          retryTasks({ chat_id: object.data.chat, message_id: object.data.id });
+        }
+      });
+
+      $('#mobile_failed_list').on('click', '.retry-one-button', function () {
+        retryTasks({ chat_id: $(this).attr('data-chat'), message_id: $(this).attr('data-id') });
+      });
+
+      $('#retry_all_tasks').on('click', function () {
+        layer.confirm('将全部失败任务重新加入队列？', { title: '重试全部任务' }, function (index) {
+          retryTasks({ all: true });
+          layer.close(index);
+        });
+      });
+
+      function cancelTask(chatId, messageId) {
+        $.ajax({
+          url: 'api/cancel_task',
+          type: 'post',
+          data: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function (result) {
+            showStatus(result.message || '任务已取消', 'success');
+            lastQueueSignature = '';
+            update_download_list();
+            updateSystemStatus();
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            showStatus(result.message || '任务取消失败', 'error');
+          }
+        });
+      }
+
+      $('#panel-queue').on('click', '.task-cancel-button', function () {
+        var button = $(this);
+        layer.confirm('取消这个尚未开始的下载任务？', { title: '取消任务' }, function (index) {
+          cancelTask(button.attr('data-chat'), button.attr('data-id'));
+          layer.close(index);
+        });
+      });
+
+      $('#proxy_node_button').on('click', function () {
+        activateView('config');
+        document.getElementById('setup-network').scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
+        document.querySelector('input[name=network_choice]:checked').focus();
+      });
+      refreshSetup();
+      setInterval(refreshSetup, 10000);
+      $.getJSON('api/network/status').done(function (status) {
+        $('#proxy_node_label').text(status.mode === 'ss' ? '网络 · ' + String(status.node_protocol || 'SS').toUpperCase() : status.mode === 'proxy' ? '网络 · 代理' : '网络 · 直连');
+        if (!status.telegram_configured) {
+          $('#setup_callout').prop('hidden', false);
+          if (!new URL(window.location.href).searchParams.has('view')) showWizard(0);
+        }
+      });
+
+      function updateSystemStatus() {
+        if (systemRefreshPending || document.hidden) {
+          return;
+        }
+        systemRefreshPending = true;
+        $.ajax({
+          url: 'api/system_status',
+          type: 'get',
+          dataType: 'json',
+          cache: false,
+          success: function (result) {
+            systemFailureCount = 0;
+            var storage = result.storage || {};
+            var channels = result.channels || {};
+            var scheduler = result.scheduler || {};
+
+            currentTransfer = result.transfer || {};
+            globalDownloadState = result.download_state || 'paused';
+            storageAvailable = !!storage.available && storage.writable !== false;
+            storageIssue = storage.mount_state === 'unmounted'
+              ? '共享目录未挂载'
+              : (!storage.available ? '目录不可用' : (storage.writable === false ? '目录不可写' : ''));
+            totalChannelCount = channels.total || 0;
+            downloadingChannelCount = channels.downloading || 0;
+            waitingChannelCount = channels.waiting || 0;
+            failedChannelCount = channels.failed || 0;
+            pausedChannelCount = channels.paused || 0;
+            $('#service_health_text').text(storageAvailable ? '系统正常' : '存储异常');
+            $('#service_health_dot').removeClass('is-offline');
+            var nasLabel = storage.mount_state === 'unmounted'
+              ? '共享目录未挂载'
+              : (!storage.available ? '目录不可用' : (storage.writable === false ? '目录写入异常' : '保存目录可用'));
+            $('#nas_health_text').text(nasLabel);
+            $('#nas_health_text').toggleClass('is-offline', !storageAvailable);
+            $('#nas_health_text').attr('title', storage.path || '');
+            $('#nas_capacity_text').text(storageAvailable ? '剩余 ' + formatBytes(storage.free) : '下载已阻止');
+            $('#mount_storage_button').prop('hidden', storage.mount_state !== 'unmounted' || !storage.mount_url_configured);
+            var schedulerTotal = (scheduler.queued || 0) + (scheduler.in_flight || 0);
+            $('#scheduler_health_text').text((scheduler.active_channels || 0) + ' 个活跃频道 · ' + schedulerTotal + ' 个待处理任务');
+            $('#scheduler_health_text').attr('title','下载器会按优先级安排频道，并保留未完成任务。');
+            $('.health-strip').toggleClass('is-healthy', storageAvailable).toggleClass('has-alert', !storageAvailable);
+            applyChannelStartAvailability();
+            $('#last_updated_text').text('更新于 ' + new Date(result.server_time).toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+            $('#download_speed_title').text(currentTransfer.paused ? '已挂起' : (currentTransfer.speed || '0 B/s'));
+            $('#download_channel_label').text(currentTransfer.paused && currentTransfer.active_files ? '挂起频道' : '下载频道');
+            renderStateButton(result.download_state === 'downloading' ? 'pause' : 'continue', currentTransfer);
+            updateMetricCounts();
+          },
+          error: function () {
+            systemFailureCount += 1;
+            $('#service_health_text').text('服务状态异常');
+            $('#service_health_dot').addClass('is-offline');
+            $('#last_updated_text').text('数据可能已过期');
+            if (systemFailureCount === 2) {
+              showStatus('无法读取最新运行状态，页面将继续自动重试。请检查下载服务是否仍在运行。', 'error', { title: '状态连接中断' });
+            }
+          },
+          complete: function () { systemRefreshPending = false; }
+        });
+      }
+
+      $('#mount_storage_button').on('click', function () {
+        var button = $(this);
+        button.prop('disabled', true).text('正在打开 Finder…');
+        $.ajax({
+          url: 'api/mount_storage',
+          type: 'post',
+          dataType: 'json',
+          success: function (result) {
+            showStatus(result.message || '已请求挂载共享目录', 'success');
+          },
+          error: function (xhr) {
+            var result = xhr.responseJSON || {};
+            showStatus(result.message || '无法挂载共享目录', 'error');
+          },
+          complete: function () {
+            button.prop('disabled', false).text('挂载共享目录');
+            window.setTimeout(updateSystemStatus, 2500);
+          }
+        });
+      });
+
+      $('#logout_button').on('click', function () {
+        $.ajax({
+          url: 'logout',
+          type: 'post',
+          complete: function () {
+            window.location.href = 'login';
+          }
+        });
+      });
+
+      function refreshDashboard() {
+        if (document.hidden) {
+          return;
+        }
+        updateSystemStatus();
+        if (currentView === 'queue') {
+          refreshChannelRows();
+        } else if (currentView === 'active') {
+          update_download_list();
+        }
+      }
+
+      var dashboardTimer = self.setInterval(refreshDashboard, 3000);
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+          refreshDashboard();
+        }
+      });
+
+      // v3.6: live progress via Server-Sent Events. Purely additive -- pushes
+      // the fast-changing speed/state every second so it feels live. If SSE is
+      // unavailable the browser auto-reconnects and the 3s polling above still
+      // drives every metric, so nothing breaks.
+      var liveStream = null;
+      function startLiveStream() {
+        if (typeof window.EventSource === 'undefined') { return; }
+        try {
+          liveStream = new EventSource('api/events/stream');
+          liveStream.onmessage = function (event) {
+            var data;
+            try { data = JSON.parse(event.data); } catch (err) { return; }
+            if (!data || data.error || document.hidden) { return; }
+            var transfer = data.transfer || {};
+            $('#download_speed_title').text(transfer.paused ? '已挂起' : (transfer.speed || '0 B/s'));
+
+            if (data.server_time) {
+              $('#last_updated_text').text('实时 · ' + new Date(data.server_time).toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+            }
+          };
+          liveStream.onerror = function () { /* browser auto-reconnects; polling covers UI */ };
+        } catch (err) { /* ignore -- polling remains the source of truth */ }
+      }
+      startLiveStream();
+
+      function update_download_history() {
+        table.reload('already_download_list', { page: { curr: 1 } });
+        update_mobile_download_history();
+      }
+
+      function update_failed_tasks() {
+        table.reload('failed_download_list', { page: { curr: 1 } });
+        update_mobile_failed_tasks();
+      }
+
+      function activateView(view, updateUrl) {
+        if (['queue', 'active', 'history', 'failed', 'imports', 'config'].indexOf(view) === -1) {
+          view = 'queue';
+        }
+        var viewChanged = currentView !== view;
+        currentView = view;
+        resetSecretVisibility();
+        document.body.dataset.view = view;
+        var titles = {queue:'频道队列', active:'正在下载', history:'下载记录', failed:'异常任务', imports:'导入中心', config:'归档设置'};
+        $('#page_title').text(titles[view]);
+        document.title = titles[view] + ' · Telegram 下载器';
+        $('.view-tab').each(function () {
+          var active = $(this).attr('data-view') === view;
+          $(this).toggleClass('is-active', active).attr('aria-selected', active ? 'true' : 'false').attr('tabindex', active ? '0' : '-1');
+        });
+        $('.view-panel').each(function () {
+          var active = $(this).attr('data-panel') === view;
+          $(this).toggleClass('is-active', active).prop('hidden', !active);
+        });
+
+        window.clearInterval(historyTimer);
+        window.clearInterval(failedTimer);
+        if (view === 'queue') {
+          refreshChannelRows();
+        } else if (view === 'active') {
+          lastQueueSignature = '';
+          update_download_list();
+        } else if (view === 'history') {
+          update_download_history();
+          historyTimer = self.setInterval(update_download_history, 10000);
+        } else if (view === 'failed') {
+          update_failed_tasks();
+          failedTimer = self.setInterval(update_failed_tasks, 10000);
+        } else if (view === 'config') {
+          loadConfig(false);
+          loadChannelLibrary(false);
+        }
+
+        if(viewChanged && updateUrl !== false) window.scrollTo({top:0,left:0,behavior:'auto'});
+        window.dispatchEvent(new CustomEvent('tmd:viewchange', { detail: view }));
+
+        if (updateUrl !== false) {
+          var url = new URL(window.location.href);
+          url.searchParams.set('view', view);
+          window.history.replaceState({}, '', url);
+        }
+      }
+
+      $('#queue_import_channels').on('click',function(){activateView('imports');});
+      $('.view-tab').on('click', function () {
+        if ($(this).attr('data-view') === 'queue') {
+          queueStatusFilter = '';
+          $('#queue_status').val('');
+        }
+        activateView($(this).attr('data-view'));
+      });
+
+      $('.view-tab').on('keydown', function (event) {
+        var tabs = $('.view-tab'); var index = tabs.index(this); var next = index;
+        if ((event.key === 'ArrowRight' || event.key === 'ArrowDown')) next = (index + 1) % tabs.length;
+        else if ((event.key === 'ArrowLeft' || event.key === 'ArrowUp')) next = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        var target = tabs.eq(next); activateView(target.attr('data-view')); target[0].focus();
+      });
+
+      $('.metric-tile').on('click', function () {
+        queueStatusFilter = $(this).attr('data-filter-status') || '';
+        $('#queue_status').val(queueStatusFilter);
+        activateView($(this).attr('data-view'));
+        if ($(this).attr('data-view') === 'queue') {
+          reloadChannelTable();
+        }
+      });
+
+      update_mobile_download_history();
+      update_mobile_failed_tasks();
+      updateMetricCounts();
+      activateView(new URL(window.location.href).searchParams.get('view') || 'queue', false);
+      refreshDashboard();
+    });
+  </script>
+</body>
+
+</html>

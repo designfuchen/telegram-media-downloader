@@ -1,0 +1,15 @@
+https://github.com/tangyoha/pyrogram/archive/51a100c5e2745471ee89c1dd96dd69962973108b.zip
+PyYAML==6.0.2
+rich==12.5.1
+PyTgCrypto==1.2.12
+loguru==0.6.0
+# aligo==5.4.0
+Werkzeug==3.1.9
+flask==3.1.3
+ply==3.11
+ruamel.yaml==0.17.21
+flask-login==0.6.3
+pycryptodome==3.23.0
+requests==2.34.2
+qrcode[pil]==8.2
+waitress==3.0.2

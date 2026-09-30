@@ -1,0 +1,22 @@
+services:
+  downloader:
+    build: .
+    image: telegram-media-downloader:local
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5002:5002"
+    stdin_open: true
+    tty: true
+    environment:
+      TMD_SECRET_KEY: ${TMD_SECRET_KEY:?请设置并备份32字节Base64加密密钥}
+      TMD_CONFIG_FILE: /app/config/config.yaml
+      TMD_DATA_FILE: /app/config/data.yaml
+      TMD_TASK_DB: /app/dbdata/download_history.db
+      TMD_HISTORY_DB: /app/dbdata/download_history.db
+    volumes:
+      - ./private-config:/app/config
+      - ./downloads:/app/downloads
+      - ./sessions:/app/sessions
+      - ./log:/app/log
+      - ./temp:/app/temp
+      - ./dbdata:/app/dbdata

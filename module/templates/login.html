@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 · Telegram 下载器</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='brand/telegram-downloader-icon.svg') }}">
+  <link href="{{ url_for('static', filename='login/css/index.css') }}?v=6.1" rel="stylesheet">
+</head>
+
+<body>
+  <main class="login-shell"><div class="login-brand"><img src="{{ url_for('static', filename='brand/telegram-downloader-icon.svg') }}" width="80" height="80" alt=""><strong>Telegram 下载器</strong><p>好内容，留在自己手里。</p></div><section class="login-card" aria-labelledby="login_title"><p class="login-kicker">Telegram 内容归档</p><h1 id="login_title">欢迎回来</h1><p class="login-description">登录你的归档空间，继续收集值得保存的内容。</p><form id="login_form"><label for="password">访问密码</label><input type="password" placeholder="安装时设置的访问密码" id="password" autocomplete="current-password" aria-describedby="password_help login_error"><p id="password_help" class="login-help">这是下载器的访问密码，和 Telegram 账号密码不同。源码运行：查看本地 config.yaml 中的 web_login_secret。Mac 应用会自动登录此页面，无需手动填写。远程访问必须使用 HTTPS。</p><p id="login_error" role="alert"></p><button id="login_button" class="confirm-btn" type="submit">打开我的归档</button></form></section><p class="login-footer">保存在你的设备 · 按你的方式整理</p></main>
+
+  <script src="../static/layui/layui.js"></script>
+  <script src="../static/request/index.js"></script>
+  <script>
+    const launchToken = new URLSearchParams(location.hash.slice(1)).get('launch');
+    if (launchToken) {
+      history.replaceState(null, '', location.pathname);
+      fetch('/api/local-launch', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:launchToken})}).then(r=>r.json()).then(result=>{if(result.ok)location.replace('/?view=config');else document.getElementById('login_error').textContent='自动打开已过期，请重新打开下载器。';});
+    }
+    const $ = layui.$
+    const button = $('#login_button')
+    const reportError = message => {$('#login_error').text(message);$('#password').attr('aria-invalid','true').trigger('focus')}
+
+    const login = () => {
+      const pValue = $('#password').val()
+
+      if (!pValue) {
+        reportError('请安装时设置的访问密码。')
+        return
+      } else {
+        $('#login_error').text('');$('#password').removeAttr('aria-invalid');button.prop('disabled',true).text('正在登录…')
+        request('login', 'post', { password: pValue }).then((res) => {
+          const { code } = res
+          if (code === '1') {
+            window.location.href = window.location.origin
+          } else {
+            reportError('密码不正确，请检查安装时设置的访问密码。')
+          }
+          $('#password').val('')
+        }).finally(()=>{button.prop('disabled',false).text('打开我的归档')}).catch((error) => {
+          const response = error.responseJSON || {}
+          reportError(response.message || '无法连接下载器，请确认服务正在运行后重试。')
+          $('#password').val('')
+        }).finally(()=>{button.prop('disabled',false).text('打开我的归档')})
+      }
+    }
+
+    $('#login_form').on('submit', event => {event.preventDefault();login()})
+
+  </script>
+</body>
+
+</html>

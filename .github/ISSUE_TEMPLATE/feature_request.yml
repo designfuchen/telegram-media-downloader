@@ -1,0 +1,23 @@
+name: 功能建议
+description: 从一个具体使用场景开始，告诉我们怎样能更方便。
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 现在遇到什么困难？
+      placeholder: "当我…时，需要…，目前只能…"
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 你希望怎样操作？
+      description: "描述理想的步骤与结果；如果能更少一步，也请说出来。"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 已尝试的方式或参考（可选）
+      description: "截图请使用示例数据，不要包含账号或节点凭证。"

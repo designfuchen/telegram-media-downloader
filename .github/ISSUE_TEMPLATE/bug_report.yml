@@ -1,0 +1,57 @@
+name: Bug 反馈
+description: 告诉我们哪一步没有按预期工作。
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "感谢反馈。请先查看 README 的常见问题；安全漏洞请按 SECURITY.md 私密报告。截图和日志请删除账号、手机号、API Hash、节点与私人频道内容。"
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      placeholder: "例如 0.1.5"
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: 使用方式
+      options:
+        - 原生 macOS 应用
+        - Python 源码 / Web
+        - Docker / NAS
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: 系统与芯片
+      placeholder: "例如 macOS 14 / Apple Silicon；勿填写设备序列号"
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 如何重现
+      description: "写出操作步骤，使用虚构频道或占位内容。"
+      placeholder: "1. 打开…
+2. 点击…
+3. 出现…"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期与实际结果
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 已脱敏的截图或日志（可选）
+      description: "不要上传 config.yaml、会话文件、数据库或完整节点链接。"
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 发布前确认
+      options:
+        - label: 我已移除凭证与私人信息，并查找过已有 Issue。
+          required: true

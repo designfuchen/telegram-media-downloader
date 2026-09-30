@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 先看完整上手教程
+    url: https://github.com/designfuchen/telegram-media-downloader/blob/main/docs/getting-started.md
+    about: API 申请、网络、验证码、频道 ID 与保存位置。
+  - name: 私密报告安全问题
+    url: https://github.com/designfuchen/telegram-media-downloader/security/advisories/new
+    about: 请勿在公开 Issue 中披露漏洞细节或凭证。

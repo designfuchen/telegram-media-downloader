@@ -1,0 +1,24 @@
+<div class="import-intro-grid"><section class="import-entry"><span class="import-mark" aria-hidden="true">↓</span><h2>一份清单，添加多个频道。</h2><p>先预览，再确认。重复项和无法访问的频道会单独提示。</p><button id="import_csv_open" class="save-config-button" type="button">粘贴链接或上传 CSV</button><div class="template-links"><a href="api/import/template.csv?kind=channels" download>频道 CSV 模板 ↗</a><a href="api/import/template.csv?kind=invites" download>邀请链接模板 ↗</a></div></section><aside class="import-guide"><h3>第一次导入？</h3><ol><li>下载模板，保留第一行字段名。</li><li>每行填写一个频道，替换示例。</li><li>上传文件，检查结果后确认添加。</li></ol><p>公开频道可填 @用户名；私有频道先在 Telegram 手动加入。</p></aside></div><p class="intake-note" id="manual_invite_help">第一步：手动加入本批频道。第二步：验证并导入。第三步：确认本批下载完成，再进入下一批。系统不会自动加群。</p>
+
+
+  <section class="sheet" id="manual_invite_sheet">
+    <header class="batch-head">
+      <div><div class="batch-kicker">私有频道 · 分批添加</div><strong id="batchTitle" class="batch-number">正在读取…</strong></div>
+      <div class="batch-score"><strong id="batchScore">—</strong><span>已添加或跳过</span><div class="progress-track"><div id="progress" class="progress-fill"></div></div></div>
+    </header>
+    <div id="summary" class="global-stats">
+      <div class="stat"><span>已添加</span><b>—</b></div><div class="stat"><span>待处理</span><b>—</b></div>
+      <div class="stat"><span>验证中</span><b>—</b></div><div class="stat"><span>需处理</span><b>—</b></div><div class="stat"><span>总计</span><b>—</b></div>
+    </div>
+    <div class="command">
+      <div class="steps"><b>1</b> 手动加入本批频道 <span>→</span><b>2</b> 验证并导入 <span>→</span><b>3</b> 下载完成后进入下一批</div>
+      <div class="actions">
+        <button id="verifyBtn" class="btn orange" type="button">我已手动加入，验证当前批次</button>
+        <button id="retryAllBtn" class="btn" type="button" hidden>重试临时失败</button>
+        <button id="advanceBtn" class="btn outline" type="button" disabled>确认下载完成，进入下一批</button>
+      </div>
+    </div>
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <div class="manifest-head"><h2>本批频道清单</h2><div class="legend"><span><i></i>已添加</span><span><i class="warn"></i>需要处理</span><span><i class="bad"></i>链接失效</span></div></div>
+    <div id="manifest" class="manifest"><div class="empty">正在加载固定批次…</div></div>
+  </section>

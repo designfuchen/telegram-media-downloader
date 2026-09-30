@@ -1,0 +1,101 @@
+api_hash: "YOUR_TELEGRAM_API_HASH"
+api_id: 0
+bot_token: ""  # 可选机器人；与 API ID / API Hash 不同，默认不启用。
+proxy: {}  # 例如 {scheme: socks5, hostname: 127.0.0.1, port: 1080}；空值为直连。
+media_proxy_pool: []
+ss_proxy: {}  # 从统一导入入口配置；空值为禁用。
+upload_drive:
+  enable_upload_file: false
+  upload_adapter: rclone
+  rclone_path: ""
+  remote_dir: ""
+  before_upload_file_zip: false
+  after_upload_file_delete: true
+
+file_formats:
+  audio: [all]
+  document: [all]
+  video: [all]
+file_path_prefix: [chat_title, media_datetime]
+media_types: [photo, video, document, audio]
+file_name_prefix: [message_id, file_name]
+file_name_prefix_split: " - "
+
+max_download_task: 5
+max_concurrent_transmissions: 25
+# 每个 Telegram 数据中心的独立媒体连接数；普通账号建议 4，Premium 可到 8（上限）。
+media_session_pool_size: 4
+
+# --- 自适应并发调速器（Premium 建议开启）---
+# 自动寻找 Telegram 允许的最快稳定并发：健康时每 adjust_interval 秒 +1 上探，
+# 上探不涨速则回落并锁定甜蜜点；FloodWait 立即降档；
+# 首字节超时在 stall_window 秒内达到 stall_threshold 次 -> 全局冷却
+# cooldown_seconds 秒（判定账号被限速，暂停领取新任务，在传文件不中断）。
+adaptive_speed:
+  enabled: false
+  base_concurrency: 8
+  max_concurrency: 16
+  min_concurrency: 6
+  adjust_interval: 300
+  stall_threshold: 8
+  stall_window: 180
+  cooldown_seconds: 900
+  hold_after_decrease: 1800
+  lock_seconds: 21600
+  improve_ratio: 1.03
+# 单个频道最多同时传输的文件数，避免一个大频道占满所有连接。
+max_downloads_per_channel: 4
+# 连接建立后长时间收不到首字节，或传输中长时间没有新字节时自动重试。
+download_first_byte_timeout: 30
+download_stall_timeout: 60
+
+# --- WxPusher 微信推送：每批频道下载完成时推送到微信 ---
+# 注册与取值：https://wxpusher.zjiecode.com/admin/
+# enabled=true 且 app_token/uids 均填写时才会启用。
+wxpusher:
+  enabled: false
+  app_token: ""
+  uids: []
+language: ZH
+hide_file_name: false
+enable_download_txt: false
+date_format: "%Y_%m"
+
+web_host: 127.0.0.1
+# 仅填写本机受控 HTTPS 反向代理的实际连接 IP；默认不信任转发头。
+# 例如 cloudflared / nginx 在本机时填写 [127.0.0.1, "::1"]。
+web_trusted_proxies: []
+web_port: 5002
+web_login_secret: "CHANGE_ME"
+start_paused: true
+keep_service_alive: true
+
+save_path: "./downloads"
+nas_host: ""
+nas_mount_url: ""
+filter_advertisement_list: []
+replace_advertisement_list: []
+group_add_advertisement: {}
+channel_storage: sqlite
+
+# --- v3.5 稳定性新增 ---
+# NAS 掉线保护：设为 true 时，仅当下载目录是真实挂载点才开始写入，
+# 防止共享未挂载时把文件悄悄写到本地磁盘。NAS 用户建议开启。
+nas_require_mount: false
+# 全局限流治理：账号级元数据 API 调用最小间隔（秒）。
+# 文件传输不受此间隔影响；默认历史扫描并发为 2。
+api_min_interval: 1.2
+
+# --- v3.7 远程访问（无需 Tailscale）---
+# 通过 Cloudflare Tunnel 让手机/电脑用一个 https 网址直接控制，无需端口映射。
+# 安装：brew install cloudflared （macOS）
+remote_access:
+  enabled: false            # true = 启动时自动建立隧道
+  provider: cloudflared
+  cloudflared_token: ""     # 留空=快速隧道(随机 trycloudflare 网址)；填入=命名隧道(固定域名)
+
+# --- v3.5 完整暂停语义（可选，建议真机验证后再开）---
+# true = 暂停频道时立即中止在传文件、释放连接槽给其它频道，继续时自动重下
+#        （任务标记 paused，不消耗重试次数）。
+# false(默认) = 暂停时冻结在原地、保留已下进度（全局暂停始终为此行为）。
+pause_release_transfers: false

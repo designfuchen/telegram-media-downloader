@@ -70,7 +70,7 @@
 https://t.me/c/1234567890/42
 ```
 
-`1234567890` 是该链接中的频道数字，`42` 是消息编号。对于这一示例，可在下载器中使用 `-1001234567890`。不要把末尾的消息编号当作频道 ID。链接语法见 [Telegram 消息链接说明](https://core.telegram.org/api/links#message-links)，ID 转换见 [Telegram ID 说明](https://core.telegram.org/api/peer-ids)。
+`1234567890` 是该链接中的频道数字，`42` 是消息编号。对于这一示例，可在下载器中使用 `-1001234567890`。不要把末尾的消息编号当作频道 ID。链接语法见 [Telegram 消息链接说明](https://core.telegram.org/api/links#message-links)，ID 转换见 [Telegram ID 说明](https://core.telegram.org/api/bots/ids)。
 
 部分频道不允许复制或转发，某些客户端也不会显示该入口。这种情况下不要假设一定能通过链接取得 ID。
 

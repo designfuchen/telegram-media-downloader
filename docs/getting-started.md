@@ -1,6 +1,16 @@
 # 从第一次打开，到第一次下载
 
-你只需要自己的 Telegram 账号、可访问 Telegram 的网络，以及一个保存文件夹。当前原生版本面向 macOS 14+ 的 Apple Silicon Mac。公开 DMG 将在 Apple 公证与安装检查通过后出现在 [Releases](https://github.com/designfuchen/telegram-media-downloader/releases)。
+你只需要自己的 Telegram 账号、可访问 Telegram 的网络，以及一个保存文件夹。当前原生版本面向 macOS 14+ 的 Apple Silicon Mac。
+
+## 安装：下载，拖入，打开
+
+1. 打开 [0.1.5 下载页](https://github.com/designfuchen/telegram-media-downloader/releases/tag/v0.1.5)。
+2. 下载 **Telegram-Downloader-0.1.5-arm64.dmg**。普通用户无需下载 source 源码包。
+3. 双击 DMG，把 **Telegram Downloader** 拖到 **Applications（应用程序）**。
+4. 等待拷贝结束，从“应用程序”打开它，再弹出安装磁盘。
+5. 首次打开时，按 macOS 正常的确认提示继续。若提示签名或文件损坏，重新下载并通过 Issue 反馈；不要关闭系统安全检查。
+
+应用已正式签名并通过 Apple 公证，票据附在应用上。DMG 是包装容器，未单独公证；备选应用 ZIP 见同一下载页。无需安装 Python、Docker 或运行终端命令。
 
 ## 1. 申请 API 凭证
 

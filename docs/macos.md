@@ -28,7 +28,7 @@ python scripts/build_native_macos.py --output /path/to/new-build-folder --sing-b
 
 原生界面通过回环地址连接内置引擎，使用短时、单次令牌换取会话。握手文件只记录端口，权限为 0600，不记录令牌。引擎仍保留认证，不能通过局域网直接访问。
 
-省略证书参数时，构建使用 ad-hoc 签名，供本机验证。面向公众分发前必须使用 Developer ID Application 正式签名、完成 Apple 公证并装订票据，以及在干净 Mac 上验收首次安装、真实账号登录和真实下载。Apple Development 证书不能代替 Developer ID Application。
+省略证书参数时，构建使用 ad-hoc 签名，供本机验证。面向公众分发前应使用 Developer ID Application 正式签名、完成 Apple 公证并装订票据；另需尽可能在干净 Mac 上验收首次安装、真实账号登录和真实下载，并注明尚未验证的环境。Apple Development 证书不能代替 Developer ID Application。
 
 原生界面当前覆盖首次引导、节点导入、登录、频道队列、暂停/开始、分页和 CSV 批量导入。旧网页控制台的逐文件历史、失败任务细分管理、频道高级筛选尚未完整迁移到原生界面；功能范围以实际界面为准。性能收益尚未基准测试，下载速度仍取决于 Telegram、节点和磁盘。
 
@@ -62,3 +62,7 @@ python scripts/build_native_macos.py \
 `--release` 在缺少正式证书或公证配置时直接拒绝构建。脚本从内到外签名 Mach-O 与 framework，启用 hardened runtime，提交应用公证、装订票据并检查 Gatekeeper；然后创建 DMG、签名、公证并装订 DMG。只有全部成功才写入 `signed-and-notarized` 构建状态。Python 的原生回调需要允许动态可执行内存，见 `native/engine.entitlements`；没有放开 library validation。
 
 也可把已签名应用的 macOS 归档加入 Xcode Organizer，使用已登录的 Apple 账户选择 Direct Distribution 进行公证并导出。发布验收应核对 `stapler validate`、`codesign --verify --deep --strict` 与 `spctl --assess` 的实际结果。不要将“创建证书成功”写成“公证成功”。
+
+### 0.1.5 的实际分发方式
+
+0.1.5 使用 Xcode Direct Distribution 公证并导出应用，应用票据已装订。分发附件为包含该应用的 DMG 和保留元数据的应用 ZIP；DMG 本身未单独签名或公证。应用票据、公证后的严格签名、系统分发预检查以及 DMG 挂载和拷贝后检查均通过。该方式与上面的 `--release` 全容器自动公证流程不同。Apple 的 [Xcode 分发演示](https://developer.apple.com/videos/play/wwdc2019/235/?time=2243) 说明了导出已公证应用后用 ZIP 或磁盘映像分发的方式；后续自动构建可使用上述全容器流程。

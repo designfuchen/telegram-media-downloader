@@ -2,7 +2,7 @@
 
 ## 0.1.5 — 2026-09-30
 
-本次公开发布以原生 Mac 使用流程、数据保护与稳定性为重点。源码已准备公开；DMG 在 Apple 公证及安装检查通过后提供。
+本次公开发布以原生 Mac 使用流程、数据保护与稳定性为重点。源码已公开，Apple Silicon Mac 安装包见 [0.1.5 Release](https://github.com/designfuchen/telegram-media-downloader/releases/tag/v0.1.5)。
 
 ### 新增与改进
 
@@ -30,4 +30,4 @@
 
 ### 分发状态
 
-Developer ID 签名与 hardened runtime 已完成；Apple 公证审核中。当前未发布可公开分发的 DMG。原生界面尚未完整覆盖 Web 的高级任务管理；下载性能没有未经验证的保证。
+应用已完成 Developer ID 签名、hardened runtime 与 Apple 公证，公证票据已装订并验证。已提供包含该应用的 DMG、应用 ZIP 与 SHA-256 摘要；DMG 容器未单独公证。挂载和拷贝后的应用严格签名、公证票据、Gatekeeper 与系统分发检查通过。原生界面尚未完整覆盖 Web 的高级任务管理；下载性能没有未经验证的保证。

@@ -22,7 +22,9 @@ The 15-second interface walkthrough uses synthetic channel and file data; it is 
 
 ## Availability
 
-Native builds target Apple Silicon and macOS 14+. The bundled application includes Python and sing-box. Developer ID signing is complete; Apple notarization is still pending. A public DMG will be added to [Releases](https://github.com/designfuchen/telegram-media-downloader/releases) after approval and installation checks.
+Native builds target Apple Silicon and macOS 14+. The bundled application includes Python and sing-box. **[Download the Mac DMG](https://github.com/designfuchen/telegram-media-downloader/releases/download/v0.1.5/Telegram-Downloader-0.1.5-arm64.dmg)** and drag the app into Applications.
+
+The application is Developer ID signed, notarized by Apple, and has a validated stapled ticket. The DMG is an unsigned distribution wrapper containing that approved application; an app ZIP is also available in [Releases](https://github.com/designfuchen/telegram-media-downloader/releases/tag/v0.1.5). Container integrity, mounting, copying, strict app signatures, the ticket and system pre-distribution checks passed locally. See the [release audit](docs/release-audit.md) for environment limitations.
 
 Source and Docker instructions are in the [main README](README.md#安装与运行). Python 3.11 and a securely saved `TMD_SECRET_KEY` are required for source execution. Native build instructions: [docs/macos.md](docs/macos.md).
 

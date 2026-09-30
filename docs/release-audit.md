@@ -1,6 +1,6 @@
 # 0.1.5 发布自查
 
-本报告覆盖 0.1.5 源码与 Apple Silicon 原生 macOS 应用。源码准备公开；Developer ID 签名已完成，Apple 公证审核中，DMG 尚未公开分发。实际可下载文件以 GitHub Releases 为准。
+本报告覆盖 0.1.5 源码与 Apple Silicon 原生 macOS 应用。源码已公开；应用已完成 Developer ID 签名与 Apple 公证，并装订有效票据。DMG、应用 ZIP 和校验文件见 [GitHub Releases](https://github.com/designfuchen/telegram-media-downloader/releases/tag/v0.1.5)。DMG 为未单独公证的包装容器，内含已签名、公证且装订票据的应用。
 
 ## 安全修复
 
@@ -28,7 +28,9 @@
 - 实际 macOS Keychain 组件随机密钥读写通过；仅操作隔离验证数据。
 - Swift 6 原生编译及 Developer ID 正式签名、hardened runtime、深层严格签名检查通过。DMG 包装包含 Applications 入口。
 - 最终冻结应用的空白冷启动、本地认证、仅文字保存与退出后重启持久化通过。
-- 已通过 Xcode Direct Distribution 上传至 Apple 公证服务。审查尚在 Processing 时禁止声称已通过公证，禁止把未装订的包作为正式公开安装包。
+- Xcode Direct Distribution 于 2026-09-30 返回 Ready to distribute；导出的 0.1.5（build 6）应用通过 `stapler validate`、`codesign --verify --deep --strict` 与 `spctl --assess`，后者返回 `accepted / Notarized Developer ID`。
+- 最终 DMG 完整性校验、只读挂载和应用拷贝通过。拷贝件添加下载隔离标记后，严格签名与 Gatekeeper 检查仍通过，`syspolicy_check distribution` 返回所有分发预检查通过。应用 ZIP 保留 macOS 元数据与公证票据。DMG 容器自身没有单独公证票据。
+- 最终应用共检查 3523 个文件，与已知私人路径、服务器、节点标识及频道信息比对没有命中；未包含实际配置、Telegram session、账号数据库或证书私钥。
 - 源码包不携带 Git 历史、运行配置、登录 session、节点、数据库、日志、下载内容或证书私钥；交付前再次进行文件扫描与敏感值比对。
 
 ## 验证边界

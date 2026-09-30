@@ -59,7 +59,9 @@
 
 面向 **macOS 14+、Apple Silicon**。桌面应用集成 Python、依赖与 sing-box；下载 DMG 后将应用拖入“应用程序”，无需命令行。
 
-**安装包发布状态：Developer ID 签名已完成，Apple 公证审核中。** 公证通过并完成安装检查后，DMG 将上传到 [GitHub Releases](https://github.com/designfuchen/telegram-media-downloader/releases)。当前公开的是完整源码，下载页尚无可公开分发的 DMG。
+**[下载 Mac 安装包](https://github.com/designfuchen/telegram-media-downloader/releases/download/v0.1.5/Telegram-Downloader-0.1.5-arm64.dmg)** · [所有附件与校验文件](https://github.com/designfuchen/telegram-media-downloader/releases/tag/v0.1.5)
+
+应用已使用 Developer ID 正式签名，通过 Apple 公证并附有有效票据。DMG 是包含该应用的安装容器，未单独公证；也提供应用 ZIP。已检查 DMG 完整性、挂载、拷贝后的严格签名、票据与系统分发检查。其他机器与最低系统兼容性仍需更多验证，详见 [发布自查](docs/release-audit.md)。
 
 ### 从源码运行（开发者）
 
